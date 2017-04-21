@@ -8,6 +8,7 @@
     <artifactId>streaming</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>spark_streaming</name>
+    <description>this is</description>
 
 
     <dependencies>
