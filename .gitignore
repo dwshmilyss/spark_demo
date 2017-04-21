@@ -3,6 +3,3 @@ out/
 target/
 .idea
 *.iml
-src/main/resources/
-src/test/
-streaming/src/test/
