@@ -3,106 +3,158 @@ package com.yiban.spark.streaming.dev
 import kafka.common.TopicAndPartition
 import kafka.message.MessageAndMetadata
 import kafka.serializer.StringDecoder
-import org.apache.log4j.{Level, Logger}
 import org.apache.spark.streaming.dstream.InputDStream
 import org.apache.spark.streaming.kafka.{HasOffsetRanges, KafkaUtils, OffsetRange}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{SparkConf, TaskContext}
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 
 /**
   * Created by 10000347 on 2017/4/7.
   */
 object ReadBySureOffsetDemo {
-  val logger = LoggerFactory.getLogger(ReadBySureOffsetDemo.getClass)
+  val logger: Logger = LoggerFactory.getLogger("org.apache.spark")
 
   def main(args: Array[String]) {
     //设置打印日志级别
-    Logger.getLogger("org.apache.kafka").setLevel(Level.ERROR)
-    Logger.getLogger("org.apache.zookeeper").setLevel(Level.ERROR)
-    Logger.getLogger("org.apache.spark").setLevel(Level.ERROR)
-    logger.info("测试从指定offset消费kafka的主程序开始")
+    org.apache.log4j.Logger.getLogger("org.apache.kafka").setLevel(org.apache.log4j.Level.ERROR)
+    org.apache.log4j.Logger.getLogger("org.apache.zookeeper").setLevel(org.apache.log4j.Level.ERROR)
+    //    org.apache.log4j.Logger.getLogger("org.apache.spark").setLevel(org.apache.log4j.Level.ERROR)
+    println("main programming beginning ...")
+    logger.warn("main programming beginning ...")
     if (args.length < 1) {
-      System.err.println("Your arguments were " + args.mkString(","))
+      logger.error("Your arguments were " + args.mkString(","))
       System.exit(1)
-      logger.info("主程序意外退出")
     }
-    //hdfs://hadoop1:8020/user/root/spark/checkpoint
-    val Array(checkpointDirectory) = args
-    val Array(zkQuorum, group, topics, offset,numThreads, checkpoint, batch, window, slide, numPartitions) = args
-    logger.info("checkpoint检查：" + checkpointDirectory)
+    val Array(brokers, topics, group, offset, checkpointDirectory, batch) = args
+    println("checkpoint = " + checkpointDirectory)
+    logger.warn("checkpoint = " + checkpointDirectory)
+    //创建 StreamingContext
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {
-        createContext(checkpointDirectory)
+        createContext(checkpointDirectory, brokers, topics, group, offset.toLong, batch.toInt)
       })
-    logger.info("streaming开始启动")
+
     ssc.start()
     ssc.awaitTermination()
   }
 
-  def createContext(checkpointDirectory: String): StreamingContext = {
-    //获取配置
-    val brokers = "10.21.3.129:9092"
-    val topics = "test"
-    val groupId = ""
-    val offset = 0l
-    //默认为5秒
-    val split_rdd_time = 8
+  def createContext(checkpointDirectory: String, brokers: String, topics: String, group: String, offset: Long, batch: Int): StreamingContext = {
+    //    val brokers: String = "10.21.3.129:9092"
+    //    val group: String = "g4"
+    //    val offset: Long = 200l
+    //    val batch: Int = 5
+
     // 创建上下文
     val sparkConf = new SparkConf()
-      .setAppName("SendSampleKafkaDataToApple").setMaster("local[2]")
-      .set("spark.app.id", "streaming_kafka")
+    val ssc = new StreamingContext(sparkConf, Seconds(batch))
+    if (checkpointDirectory != null && !"".equals(checkpointDirectory)) {
+      ssc.checkpoint(checkpointDirectory)
+    }
 
-    val ssc = new StreamingContext(sparkConf, Seconds(split_rdd_time))
+    //    val ssc = createContext(checkpointDirectory, batch.toInt)
+    println("StreamingContext created.....")
+    logger.warn("StreamingContext created.....")
+    val directKafkaStream: InputDStream[(String, String)] = createDirectStream(ssc, brokers, topics, group, offset.toLong)
+    println("InputDStream created.....")
+    logger.warn("InputDStream created.....")
 
-    ssc.checkpoint(checkpointDirectory)
+    val lines = directKafkaStream.map(line => {
+      val key = line._1.toString
+      val value = line._2.toString
+      println(s"key = $key,value = $value")
+      logger.warn(s"key = $key,value = $value")
+      value
+    })
 
+    val words = lines.flatMap(_.split(" "))
+    val wordCounts = words.map(x => (x, 1L)).reduceByKey(_ + _)
+    //    wordCounts.print()
+
+    //        //数据操作1
+    //        wordCounts.foreachRDD(rdd => {
+    //          val offsetsList = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
+    //          rdd.foreachPartition(partitionOfRecords => {
+    //    //        partitionOfRecords.foreach(pair => println(pair._1 + " : " + pair._2))
+    //            while (partitionOfRecords.hasNext){
+    //              val (k,v) = partitionOfRecords.next()
+    //              println(k + " : " + v)
+    //              logger.warn(k + " : " + v)
+    //            }
+    //            partitionOfRecords.foreach{
+    //              x => {
+    //                val o: OffsetRange = offsetsList(TaskContext.get.partitionId)
+    //                println(x._1 + " : " + x._2)
+    //                println(s"topic = ${o.topic} , partition = ${o.partition} , fromOffset = ${o.fromOffset} , untilOffset = ${o.untilOffset}")
+    //                logger.warn(x._1 + " : " + x._2)
+    //                logger.warn(s"topic = ${o.topic} , partition = ${o.partition} , fromOffset = ${o.fromOffset} , untilOffset = ${o.untilOffset}")
+    //
+    //              }
+    //            }
+    //          })
+    //        })
+
+    //    数据操作2
+    directKafkaStream.foreachRDD(rdd => {
+      println("1")
+      //获取offset集合
+      val offsetsList = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
+      offsetsList.foreach(x => {
+        println("offsetsList.length = " + offsetsList.length + ",topic = " + x.topic + ",partition = " + x.partition + ",fromOffset = " + x.fromOffset + ",untilOffset = " + x.untilOffset + ",rdd.partition = " + rdd.partitions.length)
+      })
+      rdd.foreachPartition(partitionOfRecords => {
+        //        while (partitionOfRecords.hasNext) {
+        //          val (k, v) = partitionOfRecords.next()
+        //          println(k + " : " + v)
+        //          logger.warn(k + " : " + v)
+        //        }
+
+        partitionOfRecords.foreach(line => {
+          val o: OffsetRange = offsetsList(TaskContext.get.partitionId)
+          println("++++++++++++++++++++++++++++++此处记录offset+++++++++++++++++++++++++++++++++++++++")
+          println(s"topic = ${o.topic} , partition = ${o.partition} , fromOffset = ${o.fromOffset} , untilOffset = ${o.untilOffset}")
+          println("+++++++++++++++++++++++++++++++此处消费数据操作++++++++++++++++++++++++++++++++++++++")
+          println("The kafka  line is " + line._2)
+        })
+      })
+    })
+
+    ssc
+  }
+
+  def createDirectStream(ssc: StreamingContext, brokers: String, topics: String, group: String, offset: Long): InputDStream[(String, String)] = {
     // 创建包含brokers和topic的直接kafka流
     val topicsSet: Set[String] = topics.split(",").toSet
     //kafka配置参数
     val kafkaParams: Map[String, String] = Map[String, String](
-      "bootstrap.server" -> brokers,
-      "key.deserializer" -> "org.apache.kafka.common.serialization.StringDeserializer",
-      "value.deserializer" -> "org.apache.kafka.common.serialization.StringDeserializer",
-      "group.id" -> groupId
-      //      "metadata.broker.list" -> brokers,
-      //      "group.id" -> "apple_sample",
-      //      "serializer.class" -> "kafka.serializer.StringEncoder"
-      //      "auto.offset.reset" -> "largest"   //自动将偏移重置为最新偏移（默认）
-      //      "auto.offset.reset" -> "earliest"  //自动将偏移重置为最早的偏移
-      //      "auto.offset.reset" -> "none"      //如果没有为消费者组找到以前的偏移，则向消费者抛出异常
+      //      ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG -> brokers,
+      //      ConsumerConfig.GROUP_ID_CONFIG -> group,
+      //      ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer].getClass.getCanonicalName,
+      //      ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer].getClass.getCanonicalName
+      "metadata.broker.list" -> brokers,
+      "group.id" -> group
     )
+
     /**
+      * topic，partition_no，offset
       * 从指定位置开始读取kakfa数据
       * 注意：由于Exactly  Once的机制，所以任何情况下，数据只会被消费一次！
       * 指定了开始的offset后，将会从上一次Streaming程序停止处，开始读取kafka数据
       */
-    val offsetList = List((topics, 0, offset)) //指定topic，partition_no，offset
+    //    val offsetList = List((topics, 0, offset))
     /**
       * fromOffsets结构 Map(TopicAndPartition -> offset)
       */
-    val fromOffsets = setFromOffsets(offsetList) //构建参数
+    //    val fromOffsets = setFromOffsets(offsetList) //构建参数
     val messageHandler = (mam: MessageAndMetadata[String, String]) => (mam.topic, mam.message()) //构建MessageAndMetadata
     //使用高级API从指定的offset开始消费，欲了解详情，
     //请进入"http://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.streaming.kafka.KafkaUtils$"查看
-    val messages: InputDStream[(String, String)] = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder, (String, String)](ssc, kafkaParams, fromOffsets, messageHandler)
-
-    //数据操作
-    messages.foreachRDD(mess => {
-      //获取offset集合
-      val offsetsList = mess.asInstanceOf[HasOffsetRanges].offsetRanges
-      mess.foreachPartition(lines => {
-        lines.foreach(line => {
-          val o: OffsetRange = offsetsList(TaskContext.get.partitionId)
-          logger.info("++++++++++++++++++++++++++++++此处记录offset+++++++++++++++++++++++++++++++++++++++")
-          logger.info(s"topic = ${o.topic} , partition = ${o.partition} , fromOffset = ${o.fromOffset} , untilOffset = ${o.untilOffset}")
-          logger.info("+++++++++++++++++++++++++++++++此处消费数据操作++++++++++++++++++++++++++++++++++++++")
-          logger.info("The kafka  line is " + line)
-        })
-      })
-    })
-    ssc
+    //指定消费partition的offset
+    //    val messages: InputDStream[(String, String)] = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder, (String, String)](ssc, kafkaParams, fromOffsets, messageHandler)
+    val messages: InputDStream[(String, String)] = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicsSet)
+    messages
   }
+
 
   //构建Map
   def setFromOffsets(list: List[(String, Int, Long)]): Map[TopicAndPartition, Long] = {
