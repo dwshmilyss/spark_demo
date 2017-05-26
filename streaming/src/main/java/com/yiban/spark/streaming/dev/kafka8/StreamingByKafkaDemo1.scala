@@ -1,9 +1,4 @@
-package com.yiban.spark.streaming.dev
-
-import org.apache.spark.SparkConf
-import org.apache.spark.storage.StorageLevel
-import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.streaming.kafka.KafkaUtils
+package com.yiban.spark.streaming.dev.kafka8
 
 object StreamingByKafkaDemo1 {
   def main(args: Array[String]): Unit = {
