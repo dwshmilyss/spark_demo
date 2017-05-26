@@ -1,4 +1,4 @@
-package com.yiban.spark.streaming.dev
+package com.yiban.spark.streaming.dev.kafka8
 
 import kafka.serializer.StringDecoder
 import org.apache.spark.SparkConf
@@ -8,11 +8,12 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 object DirectKafkaWordCount {
   def main(args: Array[String]) {
     if (args.length < 2) {
-      System.err.println(s"""
-                            |Usage: DirectKafkaWordCount <brokers> <topics>
-                            |  <brokers> is a list of one or more Kafka brokers
-                            |  <topics> is a list of one or more kafka topics to consume from
-                            |
+      System.err.println(
+        s"""
+           |Usage: DirectKafkaWordCount <brokers> <topics>
+           |  <brokers> is a list of one or more Kafka brokers
+           |  <topics> is a list of one or more kafka topics to consume from
+           |
         """.stripMargin)
       System.exit(1)
     }
@@ -21,12 +22,14 @@ object DirectKafkaWordCount {
 
     // Create context with 2 second batch interval
     val sparkConf = new SparkConf().setAppName("DirectKafkaWordCount")
-    val ssc = new StreamingContext(sparkConf, Seconds(2))
+    val ssc = new StreamingContext(sparkConf, Seconds(5))
 
     // Create direct kafka stream with brokers and topics
     val topicsSet = topics.split(",").toSet
-//    val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
-    val kafkaParams = Map[String, String]("bootstrap.servers" -> brokers)
+    //    val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
+    val kafkaParams = Map[String, String](
+      "bootstrap.servers" -> brokers
+    )
     val messages = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](
       ssc, kafkaParams, topicsSet)
 

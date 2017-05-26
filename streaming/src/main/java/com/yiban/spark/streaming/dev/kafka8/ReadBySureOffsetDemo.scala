@@ -1,4 +1,4 @@
-package com.yiban.spark.streaming.dev
+package com.yiban.spark.streaming.dev.kafka8
 
 import kafka.common.TopicAndPartition
 import kafka.message.MessageAndMetadata

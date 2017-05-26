@@ -1,4 +1,4 @@
-package com.yiban.spark.streaming.dev
+package com.yiban.spark.streaming.dev.kafka8
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.streaming.{Minutes, Seconds, StreamingContext}

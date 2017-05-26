@@ -1,4 +1,4 @@
-package com.yiban.spark.streaming.dev;
+package com.yiban.spark.streaming.dev.kafka8;
 
 import kafka.serializer.StringDecoder;
 import org.apache.hadoop.conf.Configuration;
