@@ -18,7 +18,7 @@ object DirectKafkaWordCount {
       System.exit(1)
     }
 
-    val Array(brokers, topics) = args
+    val Array(zkQuorm, brokers, topics, group) = args
 
     // Create context with 2 second batch interval
     val sparkConf = new SparkConf().setAppName("DirectKafkaWordCount")
@@ -28,7 +28,13 @@ object DirectKafkaWordCount {
     val topicsSet = topics.split(",").toSet
     //    val kafkaParams = Map[String, String]("metadata.broker.list" -> brokers)
     val kafkaParams = Map[String, String](
-      "bootstrap.servers" -> brokers
+      "metadata.broker.list" -> brokers,
+      "zookeeper.connect" -> zkQuorm,
+      "group.id" -> group,
+      "auto.commit.interval.ms" -> "1000",
+      "auto.offset.reset" -> "smallest",
+      "enable.auto.commit" -> "true",
+      "serializer.class" -> "kafka.serializer.StringEncoder"
     )
     val messages = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](
       ssc, kafkaParams, topicsSet)
