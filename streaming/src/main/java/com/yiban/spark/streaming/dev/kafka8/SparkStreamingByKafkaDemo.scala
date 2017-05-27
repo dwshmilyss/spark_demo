@@ -18,41 +18,41 @@ object SparkStreamingByKafkaDemo {
 
     val topicMap = topics.split(",").map((_, numThreads.toInt)).toMap
 
-    val kafkaStream = {
-      val kafkaParams = Map(
-        "zookeeper.connect" -> brokers,
-        "group.id" -> group,
-        "zookeeper.connection.timeout.ms" -> "1000")
-      val inputTopic = topics
-      val numPartitionsOfInputTopic = 9
-      val streams = (1 to numPartitionsOfInputTopic) map { _ =>
-        KafkaUtils.createStream(ssc, kafkaParams, Map(inputTopic -> 1), StorageLevel.MEMORY_ONLY_SER).map(_._2)
-      }
-      val unifiedStream = ssc.union(streams)
-      val sparkProcessingParallelism = 1 // You'd probably pick a higher value than 1 in production.
-      unifiedStream.repartition(sparkProcessingParallelism)
-    }
+//    val kafkaStream = {
+//      val kafkaParams = Map(
+//        "zookeeper.connect" -> brokers,
+//        "group.id" -> group,
+//        "zookeeper.connection.timeout.ms" -> "1000")
+//      val inputTopic = topics
+//      val numPartitionsOfInputTopic = 9
+//      val streams = (1 to numPartitionsOfInputTopic) map { _ =>
+//        KafkaUtils.createStream(ssc, kafkaParams, Map(inputTopic -> 1), StorageLevel.MEMORY_ONLY_SER).map(_._2)
+//      }
+//      val unifiedStream = ssc.union(streams)
+//      val sparkProcessingParallelism = 1 // You'd probably pick a higher value than 1 in production.
+//      unifiedStream.repartition(sparkProcessingParallelism)
+//    }
 
-      kafkaStream.map { case bytes =>
-        numInputMessages += 1
-        // Convert Avro binary data to pojo
-        converter.value.invert(bytes) match {
-          case Success(tweet) => tweet
-          case Failure(e) => // ignore if the conversion failed
-        }
-      }.foreachRDD(rdd => {
-        rdd.foreachPartition(partitionOfRecords => {
-          val p = producerPool.value.borrowObject()
-          partitionOfRecords.foreach { case tweet: Tweet =>
-            // Convert pojo back into Avro binary format
-            val bytes = converter.value.apply(tweet)
-            // Send the bytes to Kafka
-            p.send(bytes)
-            numOutputMessages += 1
-          }
-          producerPool.value.returnObject(p)
-        })
-      })
+//      kafkaStream.map { case bytes =>
+//        numInputMessages += 1
+//        // Convert Avro binary data to pojo
+//        converter.value.invert(bytes) match {
+//          case Success(tweet) => tweet
+//          case Failure(e) => // ignore if the conversion failed
+//        }
+//      }.foreachRDD(rdd => {
+//        rdd.foreachPartition(partitionOfRecords => {
+//          val p = producerPool.value.borrowObject()
+//          partitionOfRecords.foreach { case tweet: Tweet =>
+//            // Convert pojo back into Avro binary format
+//            val bytes = converter.value.apply(tweet)
+//            // Send the bytes to Kafka
+//            p.send(bytes)
+//            numOutputMessages += 1
+//          }
+//          producerPool.value.returnObject(p)
+//        })
+//      })
 
     val lines = KafkaUtils.createStream(ssc, brokers, group, topicMap,StorageLevel.MEMORY_AND_DISK_SER).map(_._2)
     val words = lines.flatMap(_.split(" "))
