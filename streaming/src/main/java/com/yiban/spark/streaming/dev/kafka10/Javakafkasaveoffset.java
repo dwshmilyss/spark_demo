@@ -1,6 +1,5 @@
-package com.yiban.spark.streaming.dev.kafka8;
+package com.yiban.spark.streaming.dev.kafka10;
 
-import kafka.serializer.StringDecoder;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -20,8 +19,9 @@ import org.apache.spark.streaming.Durations;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
-
 import org.apache.spark.streaming.kafka010.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -34,7 +34,12 @@ import java.util.*;
  * @website http://blog.csdn.net/dwshmilyss
  */
 public class Javakafkasaveoffset {
+
+    public static final Logger logger = LoggerFactory.getLogger("org.apache.spark");
+
     public static void main(String[] args) throws Exception {
+        org.apache.log4j.Logger.getLogger("org.apache.kafka").setLevel(org.apache.log4j.Level.ERROR);
+        org.apache.log4j.Logger.getLogger("org.apache.zookeeper").setLevel(org.apache.log4j.Level.ERROR);
         if (args.length < 5) {
             System.err.println("Usage: JavaDirectKafkaOffsetSaveToHBase <kafka-brokers> <topics> <topic-groupid> <zklist> <datatable>\n\n");
             System.exit(1);
@@ -71,7 +76,7 @@ public class Javakafkasaveoffset {
         Connection con = ConnectionFactory.createConnection(conf);
         Admin admin = con.getAdmin();
 
-        //System.out.println(  " @@@@@@@@ " + admin ); //调试命令，判断连接是否成功
+        //logger.warn(  " @@@@@@@@ " + admin ); //调试命令，判断连接是否成功
         TableName tn = TableName.valueOf(datatable); //创建表名对象
 
 
@@ -87,41 +92,41 @@ public class Javakafkasaveoffset {
 
         //判断数据表是否存在，如果不存在则从topic首位置消费，并新建该表；如果表存在，则从表中恢复话题对应分区的消息的offset
         boolean isExists = admin.tableExists(tn);
-        System.out.println(isExists);
+        logger.warn("tale isExists = "+isExists);
         if (isExists) {
             try {
                 HTable table = new HTable(conf, datatable);
                 Filter filter = new RowFilter(CompareOp.GREATER_OR_EQUAL,
                         new BinaryComparator(Bytes.toBytes(topics + "_")));
-                Scan s = new Scan();
-                s.setFilter(filter);
-                ResultScanner rs = table.getScanner(s);
+                Scan scan = new Scan();
+                scan.setFilter(filter);
+                ResultScanner rs = table.getScanner(scan);
 
                 // begin from the the offsets committed to the database
                 Map<TopicPartition, Long> fromOffsets = new HashMap<>();
                 String s1 = null;
                 int s2 = 0;
                 long s3 = 0;
-                for (Result r : rs) {
-                    System.out.println("rowkey:" + new String(r.getRow()));
-                    for (KeyValue keyValue : r.raw()) {
+                for (Result result : rs) {
+                    logger.warn("rowkey:" + new String(result.getRow()));
+                    for (KeyValue keyValue : result.raw()) {
                         if (new String(keyValue.getQualifier()).equals("topic")) {
                             s1 = Bytes.toString(keyValue.getValue());
-                            System.out.println("列族:" + new String(keyValue.getFamily())
+                            logger.warn("列族:" + new String(keyValue.getFamily())
                                     + " 列:" + new String(keyValue.getQualifier()) + ":"
                                     + s1);
                         }
 
                         if (new String(keyValue.getQualifier()).equals("partition")) {
                             s2 = Bytes.toInt(keyValue.getValue());
-                            System.out.println("列族:" + new String(keyValue.getFamily())
+                            logger.warn("列族:" + new String(keyValue.getFamily())
                                     + " 列:" + new String(keyValue.getQualifier()) + ":"
                                     + s2);
                         }
 
                         if (new String(keyValue.getQualifier()).equals("offset")) {
                             s3 = Bytes.toLong(keyValue.getValue());
-                            System.out.println("列族:" + new String(keyValue.getFamily())
+                            logger.warn("列族:" + new String(keyValue.getFamily())
                                     + " 列:" + new String(keyValue.getQualifier()) + ":"
                                     + s3);
                         }
@@ -150,7 +155,7 @@ public class Javakafkasaveoffset {
             HTableDescriptor hbaseTable = new HTableDescriptor(TableName.valueOf(datatable));
             hbaseTable.addFamily(new HColumnDescriptor("topic_partition_offset"));
             admin.createTable(hbaseTable);
-            System.out.println(datatable + "表已经成功创建!----------------");
+            logger.warn(datatable + "表已经成功创建!----------------");
         }
 
         JavaDStream<String> jpds = stream.map(
@@ -173,11 +178,11 @@ public class Javakafkasaveoffset {
             public void call(JavaRDD<ConsumerRecord<String, String>> rdd) throws Exception {
                 OffsetRange[] offsetRanges = ((HasOffsetRanges) rdd.rdd()).offsetRanges();
                 for (OffsetRange offsetRange : offsetRanges) {
-                    System.out.println("the topic is " + offsetRange.topic());
-                    System.out.println("the partition is " + offsetRange.partition());
-                    System.out.println("the fromOffset is " + offsetRange.fromOffset());
-                    System.out.println("the untilOffset is " + offsetRange.untilOffset());
-                    System.out.println("the object is " + offsetRange.toString());
+                    logger.warn("the topic is " + offsetRange.topic());
+                    logger.warn("the partition is " + offsetRange.partition());
+                    logger.warn("the fromOffset is " + offsetRange.fromOffset());
+                    logger.warn("the untilOffset is " + offsetRange.untilOffset());
+                    logger.warn("the object is " + offsetRange.toString());
 
                     // begin your transaction
                     // 为了保证业务的事务性，最好把业务计算结果和offset同时进行hbase的存储，这样可以保证要么都成功，要么都失败，最终从端到端体现消费精确一次消费的意境
@@ -185,7 +190,9 @@ public class Javakafkasaveoffset {
                     // update offsets where the end of existing offsets matches the beginning of this batch of offsets
                     // assert that offsets were updated correctly
                     HTable table = new HTable(conf, datatable);
+                    //create rowkey => (topic_partition)
                     Put put = new Put(Bytes.toBytes(offsetRange.topic() + "_" + offsetRange.partition()));
+                    //create column(column family = "topic_partition_offset",column = "topic", value = topic)
                     put.add(Bytes.toBytes("topic_partition_offset"), Bytes.toBytes("topic"),
                             Bytes.toBytes(offsetRange.topic()));
                     put.add(Bytes.toBytes("topic_partition_offset"), Bytes.toBytes("partition"),
@@ -193,10 +200,10 @@ public class Javakafkasaveoffset {
                     put.add(Bytes.toBytes("topic_partition_offset"), Bytes.toBytes("offset"),
                             Bytes.toBytes(offsetRange.untilOffset()));
                     table.put(put);
-                    System.out.println("add data Success!");
+                    logger.warn("add data Success!");
                     // end your transaction
                 }
-                System.out.println("the RDD records counts is " + rdd.count());
+                logger.warn("the RDD records counts is " + rdd.count());
             }
         });
 
