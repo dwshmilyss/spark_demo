@@ -58,7 +58,7 @@ object DirectKafkaWordCount2 {
     val topicPartition7 : TopicPartition = new TopicPartition(topics,7)
     val topicPartition8 : TopicPartition = new TopicPartition(topics,8)
 
-    val fromOffsets = Map[TopicPartition,Long](
+    val fromOffsets_test1 = Map[TopicPartition,Long](
       topicPartition0 -> 2,
       topicPartition1 -> 2,
       topicPartition2 -> 1,
@@ -70,6 +70,18 @@ object DirectKafkaWordCount2 {
       topicPartition8 -> 1
     )
 
+    val fromOffsets_test4 = Map[TopicPartition,Long](
+      topicPartition0 -> 0,
+      topicPartition1 -> 0,
+      topicPartition2 -> 0,
+      topicPartition3 -> 0,
+      topicPartition4 -> 0,
+      topicPartition5 -> 0,
+      topicPartition6 -> 0,
+      topicPartition7 -> 0,
+      topicPartition8 -> 0
+    )
+
     //    val stream = KafkaUtils.createDirectStream[String, String](
 //      ssc,
 //      LocationStrategies.PreferConsistent,
@@ -79,7 +91,7 @@ object DirectKafkaWordCount2 {
     val stream = KafkaUtils.createDirectStream[String, String](
       ssc,
       LocationStrategies.PreferBrokers,
-      ConsumerStrategies.Assign[String, String](fromOffsets.keys.toList, kafkaParams, fromOffsets)
+      ConsumerStrategies.Assign[String, String](fromOffsets_test4.keys.toList, kafkaParams, fromOffsets_test4)
     )
 
 
@@ -123,7 +135,7 @@ object DirectKafkaWordCount2 {
         }
       }
       // some time later, after outputs have completed
-//      stream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)
+      stream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)
     }
 
     // Start the computation
