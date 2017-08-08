@@ -3,6 +3,7 @@ package com.yiban.spark.streaming.dev.kafka10
 import kafka.cluster.Partition
 import org.apache.kafka.common.TopicPartition
 import org.apache.spark.SparkConf
+import org.apache.spark.streaming.kafka.HasOffsetRanges
 import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
@@ -62,12 +63,63 @@ object DirectKafkaWordCount1 {
       topicPartition7 -> 2,
       topicPartition8 -> 1
     )
-
     val messages = KafkaUtils.createDirectStream[String, String](
       ssc,
       LocationStrategies.PreferConsistent,
       ConsumerStrategies.Subscribe[String, String](topicsSet, kafkaParams,fromOffsets)
     )
+
+    /**
+      * 获取offset
+      * 对应的数据结构为：
+        final class OffsetRange private(
+            /** Kafka topic name */
+            val topic: String,
+            /** Kafka partition id */
+            val partition: Int,
+            /** inclusive starting offset  当前正在消费的offset */
+            val fromOffset: Long,
+            /** exclusive ending offset  已经收到的offset，但是还没有消费，也就是说[fromOffset, untilOffset)的数据已经被接收到 */
+            val untilOffset: Long)
+
+      1、创建有3个partitons的topic input2
+      bin/kafka-topics.sh --create  --zookeeper bdp-dev-3:2181/kafka --topic input2 --partitions 3 --replication-factor 1
+      2、发送数据：
+      a
+      a
+      a
+      dd
+      f
+      gg
+      3、打印的数据：
+      OffsetRange(topic: 'input2', partition: 0, range: [0 -> 0]
+      OffsetRange(topic: 'input2', partition: 1, range: [0 -> 0]
+      OffsetRange(topic: 'input2', partition: 2, range: [0 -> 0]
+
+
+      OffsetRange(topic: 'input2', partition: 0, range: [0 -> 0]
+      OffsetRange(topic: 'input2', partition: 1, range: [0 -> 0]
+      OffsetRange(topic: 'input2', partition: 2, range: [0 -> 3]
+      (a,3)
+
+
+      OffsetRange(topic: 'input2', partition: 0, range: [0 -> 0]
+      OffsetRange(topic: 'input2', partition: 1, range: [0 -> 0]
+      OffsetRange(topic: 'input2', partition: 2, range: [3 -> 5]
+      (dd,1)
+      (f,1)
+
+
+      OffsetRange(topic: 'input2', partition: 0, range: [0 -> 0]
+      OffsetRange(topic: 'input2', partition: 1, range: [0 -> 0]
+      OffsetRange(topic: 'input2', partition: 2, range: [5 -> 6]
+      (gg,1)
+      */
+    messages.foreachRDD{rdd =>
+      val offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
+      offsetRanges.foreach(x => System.out.println(x.toString()))
+    }
+
 
     // Get the lines, split them into words, count the words and print
     val lines = messages.map(_.value())
