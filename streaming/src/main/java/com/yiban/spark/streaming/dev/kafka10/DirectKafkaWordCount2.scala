@@ -71,6 +71,7 @@ object DirectKafkaWordCount2 {
     )
 
     val fromOffsets_test4 = Map[TopicPartition,Long](
+      //分区 -> offset
       topicPartition0 -> 0,
       topicPartition1 -> 0,
       topicPartition2 -> 0,

@@ -166,6 +166,12 @@
             <artifactId>spark-streaming-kafka-0-10-assembly_2.11</artifactId>
             <version>${kafka.spark.version}</version>
         </dependency>
+
+        <dependency><!-- Log -->
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
         <!-- spark dependency end -->
 
         <!-- log dependency begin
