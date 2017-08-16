@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * test
+ * 利用hbase 实现kafka的精准一次消费
  *
  * @auther WEI.DUAN
  * @date 2017/5/23
