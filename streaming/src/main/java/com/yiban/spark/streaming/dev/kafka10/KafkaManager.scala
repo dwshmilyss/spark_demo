@@ -1,18 +1,17 @@
-package com.yiban.spark.streaming.dev
+package com.yiban.spark.streaming.dev.kafka10
 
-import com.yiban.spark.streaming.dev.KafkaCluster.LeaderOffset
-
-import scala.reflect.ClassTag
+import com.yiban.spark.streaming.dev.kafka10.KafkaCluster.LeaderOffset
+import kafka.common.TopicAndPartition
+import kafka.message.MessageAndMetadata
+import kafka.serializer.Decoder
 import org.apache.log4j.LogManager
 import org.apache.spark.SparkException
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.InputDStream
-import org.apache.spark.streaming.kafka.HasOffsetRanges
-import org.apache.spark.streaming.kafka.KafkaUtils
-import kafka.common.TopicAndPartition
-import kafka.message.MessageAndMetadata
-import kafka.serializer.Decoder
+import org.apache.spark.streaming.kafka.{HasOffsetRanges, KafkaUtils}
+
+import scala.reflect.ClassTag
 /**
   * @author litaoxiao
   * 千万注意包名称
@@ -24,6 +23,7 @@ class KafkaManager(val kafkaParams: Map[String, String]) extends Serializable {
 
   /**
     * 创建数据流
+    *
     * @param ssc
     * @param kafkaParams
     * @param topics
@@ -54,6 +54,7 @@ class KafkaManager(val kafkaParams: Map[String, String]) extends Serializable {
 
   /**
     * 创建数据流前，根据实际消费情况更新消费offsets
+    *
     * @param topics
     * @param groupId
     */
@@ -114,6 +115,7 @@ class KafkaManager(val kafkaParams: Map[String, String]) extends Serializable {
 
   /**
     * 更新zookeeper上的消费offsets
+    *
     * @param rdd
     */
   def updateZKOffsets(rdd: RDD[(String, String)]): Unit = {
