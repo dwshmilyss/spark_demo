@@ -1,6 +1,9 @@
 package com.yiban.spark.streaming.dev
 
+import java.util.concurrent.TimeUnit
+
 import org.apache.log4j.{Level, Logger}
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.slf4j.LoggerFactory
 
@@ -26,6 +29,7 @@ object SparkTest {
     val lines = sc.textFile(args(0)) // "hdfs://master01:9000/a.txt"
     // 对每一行数据执行Split操作
     val res = lines.flatMap(_.split(" ")).map((_, 1)).reduceByKey(_ + _).collect()
+
     res.foreach(println)
     logger.info("count = " + res.length)
     while (true){

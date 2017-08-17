@@ -1,14 +1,9 @@
-package com.yiban.spark.streaming.dev
-
-import scala.collection.mutable.Map
-
-import org.apache.log4j.LogManager
-import org.apache.spark.SparkConf
-import org.apache.spark.streaming.Seconds
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream.toPairDStreamFunctions
+package com.yiban.spark.streaming.dev.kafka10
 
 import kafka.serializer.StringDecoder
+import org.apache.log4j.LogManager
+import org.apache.spark.SparkConf
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 object ConsumerMain extends Serializable{
   @transient lazy val log = LogManager.getRootLogger

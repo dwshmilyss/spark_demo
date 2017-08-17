@@ -1,4 +1,4 @@
-package com.yiban.spark.streaming.dev
+package com.yiban.spark.streaming.dev.kafka10
 
 import java.util.Properties
 
