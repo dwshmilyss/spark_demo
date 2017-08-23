@@ -23,7 +23,7 @@
         <!--测试机器上的scala版本-->
         <test.scala.version>2.11.7</test.scala.version>
 
-        <jackson.version>2.3.0</jackson.version>
+        <jackson.version>2.6.5</jackson.version>
         <!--slf4j版本-->
         <slf4j-version>1.7.20</slf4j-version>
         <!--spark-->
