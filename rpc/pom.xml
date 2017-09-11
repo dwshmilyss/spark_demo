@@ -4,16 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.yiban.spark</groupId>
-        <artifactId>spark_demo</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
-
-    <groupId>com.yiban.spark.rpc</groupId>
-    <artifactId>rpc</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <groupId>com.yiban.spark.rpc.dev</groupId>
+    <artifactId>kraps-rpc-parent_2.11</artifactId>
+    <version>1.0.1-SNAPSHOT</version>
+    <name>rpc</name>
+    <packaging>pom</packaging>
+    <description>A RPC framework leveraging Spark RPC module
+    </description>
 
     <dependencies>
         <dependency>
@@ -21,41 +18,8 @@
             <artifactId>kraps-rpc_2.11</artifactId>
             <version>1.0.0</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+
     
 </project>
