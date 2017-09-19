@@ -27,7 +27,7 @@ class HelloEndpoint(override val rpcEnv: RpcEnv) extends RpcEndpoint {
   override def receiveAndReply(context: RpcCallContext): PartialFunction[Any, Unit] = {
     case SayHi(msg) => {
       //println(s"receive $msg")
-      context.reply(s"$msg")
+      context.reply(s"hi, $msg")
     }
     case SayBye(msg) => {
       //println(s"receive $msg")
