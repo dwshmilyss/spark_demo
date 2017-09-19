@@ -33,7 +33,7 @@ object HelloworldClient {
     val config = RpcEnvClientConfig(rpcConf, "hello-client")
     val rpcEnv: RpcEnv = NettyRpcEnvFactory.create(config)
     val endPointRef: RpcEndpointRef = rpcEnv.setupEndpointRef(RpcAddress("localhost", 52345), "hello-service")
-    val result = endPointRef.askWithRetry[String](SayBye("neo"))
+    val result = endPointRef.askWithRetry[String](SayHi("neo"))
     println(result)
   }
 }
