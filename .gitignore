@@ -4,3 +4,4 @@ target/
 .idea
 *.iml
 /streaming/src/main/resources/META-INF/
+/core/src/main/resources/META-INF/
