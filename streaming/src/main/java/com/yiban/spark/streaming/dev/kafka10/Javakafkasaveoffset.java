@@ -22,6 +22,9 @@ import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.kafka010.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Function1;
+import scala.collection.Iterator;
+import scala.runtime.BoxedUnit;
 
 import java.io.IOException;
 import java.util.*;
@@ -176,6 +179,16 @@ public class Javakafkasaveoffset {
         stream.foreachRDD(new VoidFunction<JavaRDD<ConsumerRecord<String, String>>>() {
             @Override
             public void call(JavaRDD<ConsumerRecord<String, String>> rdd) throws Exception {
+
+                /**
+                 * 添加业务代码
+                 */
+                rdd.map(new Function<ConsumerRecord<String,String>, Object>() {
+                    @Override
+                    public Object call(ConsumerRecord<String, String> v1) throws Exception {
+                        return null;
+                    }
+                });
                 OffsetRange[] offsetRanges = ((HasOffsetRanges) rdd.rdd()).offsetRanges();
                 for (OffsetRange offsetRange : offsetRanges) {
                     logger.warn("the topic is " + offsetRange.topic());
