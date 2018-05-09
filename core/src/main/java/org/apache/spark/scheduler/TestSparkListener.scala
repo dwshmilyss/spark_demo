@@ -8,6 +8,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 object TestSparkListener {
 
   def main(args: Array[String]) {
+    System.setProperty("hadoop.home.dir","G:\\soft_by_work\\hadoop_soft\\hadoop-2.6.0")
     val sparkConf = new SparkConf().setAppName("TestSparkListener").setMaster("local")
     val sc = new SparkContext(sparkConf)
     /*  sc.setJobGroup("test1","testdesc")
