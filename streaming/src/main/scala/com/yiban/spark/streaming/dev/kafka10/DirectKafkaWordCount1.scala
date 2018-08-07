@@ -1,6 +1,5 @@
 package com.yiban.spark.streaming.dev.kafka10
 
-import kafka.cluster.Partition
 import org.apache.kafka.common.TopicPartition
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.kafka.HasOffsetRanges

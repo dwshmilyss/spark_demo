@@ -1,4 +1,4 @@
-package com.yiban.spark.streaming.dev.kafka10
+package com.yiban.spark.streaming.dev.kafka8
 
 import org.apache.spark.SparkConf
 import org.apache.spark.storage.StorageLevel

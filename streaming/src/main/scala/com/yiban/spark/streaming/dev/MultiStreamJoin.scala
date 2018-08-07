@@ -1,7 +1,7 @@
 package com.yiban.spark.streaming.dev
 
 import org.apache.spark.SparkConf
-import org.apache.spark.rdd.{PairRDDFunctions, RDD}
+import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.{Minutes, Seconds, StreamingContext}
 
 object MultiStreamJoin {

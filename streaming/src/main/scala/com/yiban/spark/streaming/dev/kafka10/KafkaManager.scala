@@ -1,6 +1,5 @@
 package com.yiban.spark.streaming.dev.kafka10
 
-import com.yiban.spark.streaming.dev.kafka10.KafkaCluster.LeaderOffset
 import kafka.common.TopicAndPartition
 import kafka.message.MessageAndMetadata
 import kafka.serializer.Decoder
