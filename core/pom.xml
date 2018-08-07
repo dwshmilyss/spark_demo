@@ -19,16 +19,16 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <encoding>UTF-8</encoding>
         <!--scala版本-->
-        <scala.version>2.11.7</scala.version>
+        <scala.version>2.11.8</scala.version>
         <!--测试机器上的scala版本-->
-        <test.scala.version>2.11.7</test.scala.version>
+        <test.scala.version>2.11.8</test.scala.version>
 
         <jackson.version>2.6.5</jackson.version>
         <!--slf4j版本-->
         <slf4j-version>1.7.20</slf4j-version>
         <!--spark-->
-        <spark.version>2.1.0</spark.version>
-        <kafka.spark.version>2.1.0</kafka.spark.version>
+        <spark.version>2.2.0</spark.version>
+        <kafka.spark.version>2.2.0</kafka.spark.version>
         <avro.spark.version>3.2.0</avro.spark.version>
         <!--hadoop-->
         <hadoop.version>2.6.0</hadoop.version>
@@ -127,7 +127,7 @@
 
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-mllib_2.10</artifactId>
+            <artifactId>spark-mllib_2.11</artifactId>
             <version>${spark.version}</version>
         </dependency>
 
