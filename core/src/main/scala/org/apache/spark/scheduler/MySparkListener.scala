@@ -1,5 +1,7 @@
 package org.apache.spark.scheduler
 
+import org.apache.spark.scheduler._
+
 class MySparkListener extends SparkListener{
 
   override def onApplicationEnd(applicationEnd: SparkListenerApplicationEnd): Unit = {
