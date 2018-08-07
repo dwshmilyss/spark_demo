@@ -65,7 +65,7 @@ object DirectKafkaWordCount1 {
     val messages = KafkaUtils.createDirectStream[String, String](
       ssc,
       LocationStrategies.PreferConsistent,
-      ConsumerStrategies.Subscribe[String, String](topicsSet, kafkaParams, fromOffsets)
+      ConsumerStrategies.Subscribe[String, String](topicsSet, kafkaParams,fromOffsets)
     )
 
     /**

@@ -1,7 +1,7 @@
 package com.yiban.spark.streaming.dev
 
+import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.{SparkConf, SparkContext}
 import org.slf4j.LoggerFactory
 
 /**
