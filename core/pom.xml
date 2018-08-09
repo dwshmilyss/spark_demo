@@ -15,8 +15,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!--add  maven release-->
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <encoding>UTF-8</encoding>
         <!--scala版本-->
         <scala.version>2.11.8</scala.version>
@@ -29,7 +29,7 @@
         <!--spark-->
         <spark.version>2.2.0</spark.version>
         <kafka.spark.version>2.2.0</kafka.spark.version>
-        <avro.spark.version>3.2.0</avro.spark.version>
+        <avro.spark.version>4.0.0</avro.spark.version>
         <!--hadoop-->
         <hadoop.version>2.6.0</hadoop.version>
         <!--http client必需要兼容CDH中的hadoop版本（cd /opt/cloudera/parcels/CDH/lib/hadoop/lib）-->
@@ -39,7 +39,6 @@
         <httpcore.version>4.2.5</httpcore.version>
         <!--fastjson-->
         <fastjson.version>1.1.39</fastjson.version>
-
     </properties>
 
 
@@ -133,7 +132,7 @@
 
         <dependency>
             <groupId>com.databricks</groupId>
-            <artifactId>spark-avro_2.10</artifactId>
+            <artifactId>spark-avro_2.11</artifactId>
             <version>${avro.spark.version}</version>
         </dependency>
 

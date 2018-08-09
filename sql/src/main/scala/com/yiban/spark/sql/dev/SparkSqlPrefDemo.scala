@@ -1,7 +1,7 @@
 package com.yiban.spark.sql.dev
 
-import org.apache.spark.sql.SparkSession
 import com.databricks.spark.sql.perf.tpcds.TPCDSTables
+import org.apache.spark.sql.SparkSession
 
 object SparkSqlPrefDemo {
 

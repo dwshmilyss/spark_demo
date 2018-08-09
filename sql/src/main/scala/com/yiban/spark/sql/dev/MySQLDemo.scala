@@ -1,6 +1,7 @@
 package com.yiban.spark.sql.dev
 
 import java.util.Properties
+
 import org.apache.spark.sql.SparkSession
 
 /**
@@ -12,13 +13,12 @@ object MySQLDemo {
 
   val spark = SparkSession
     .builder()
-    .appName("Spark SQL basic example")
-    .config("spark.some.config.option", "some-value")
+    .appName("mysql")
     .master("local[*]")
     .getOrCreate()
 
   def main(args: Array[String]) {
-    test5()
+    test4()
   }
 
 
@@ -86,7 +86,7 @@ object MySQLDemo {
     val prop = new Properties();
     val df = spark.read.jdbc(url,"test",prop)
     df.registerTempTable("test")
-    val data = df.sqlContext.sql("select * from test where userId <= 50")
+    val data = df.sqlContext.sql("select * from test where User_Id <= 50")
     data.show()
     println(df.rdd.partitions.size)
   }
