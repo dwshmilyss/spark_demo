@@ -85,9 +85,15 @@ object MySQLDemo {
   def test4(): Unit ={
     val prop = new Properties();
     val df = spark.read.jdbc(url,"test",prop)
-    df.registerTempTable("test")
-    val data = df.sqlContext.sql("select * from test where User_Id <= 50")
+    df.createOrReplaceTempView("test")
+    val data = spark.sqlContext.sql("select * from test where User_Id <= 50")
     data.show()
+    // 将表进行缓存，并查询两次，通过 Web Console 监控执行的时间
+    spark.sqlContext.cacheTable("test")
+    // 对比两次执行的时间
+    data.show()
+    //清空缓存
+    spark.sqlContext.clearCache()
     println(df.rdd.partitions.size)
   }
 
