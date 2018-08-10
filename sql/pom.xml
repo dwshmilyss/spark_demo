@@ -118,6 +118,12 @@
             <version>${spark.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-hive_2.11</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+
         <!-- A library for reading and writing Avro data from Spark SQL. -->
         <dependency>
             <groupId>com.databricks</groupId>
