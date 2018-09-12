@@ -55,7 +55,7 @@ public class Javakafkasaveoffset {
         String topics = args[1];  //要消费的话题，目前仅支持一个，想要扩展很简单，不过需要设计一下保存offset的表，请自行研究
         String groupid = args[2];  //指定消费者group
         String zklist = args[3];  //hbase连接要用到zookeeper server list，用逗号分割
-        String datatable = args[4];  //想要保存消息offset的hbase数据表
+        final String datatable = args[4];  //想要保存消息offset的hbase数据表
 
         SparkConf sparkConf = new SparkConf().setAppName("JavaDirectKafkaOffsetSaveToHBase");
         JavaStreamingContext jssc = new JavaStreamingContext(sparkConf, Durations.seconds(5));
@@ -71,7 +71,7 @@ public class Javakafkasaveoffset {
         Set<String> topicsSet = new HashSet<>(Arrays.asList(topics.split(",")));  //此处把1个或多个topic解析为集合对象，因为后面接口需要传入Collection类型
 
         //建立hbase连接
-        Configuration conf = HBaseConfiguration.create(); // 获得配置文件对象
+        final Configuration conf = HBaseConfiguration.create(); // 获得配置文件对象
         conf.set("hbase.zookeeper.quorum", zklist);
         conf.set("hbase.zookeeper.property.clientPort", "2181");
 
