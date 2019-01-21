@@ -1,5 +1,6 @@
 package com.yiban.spark.streaming.dev.kafka8
 
+import com.esotericsoftware.kryo.Kryo
 import org.apache.spark.SparkConf
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.kafka.KafkaUtils
@@ -53,6 +54,7 @@ object SparkStreamingByKafkaDemo {
 //          producerPool.value.returnObject(p)
 //        })
 //      })
+    val kyro = new Kryo()
 
     val lines = KafkaUtils.createStream(ssc, brokers, group, topicMap,StorageLevel.MEMORY_AND_DISK_SER).map(_._2)
     val words = lines.flatMap(_.split(" "))
