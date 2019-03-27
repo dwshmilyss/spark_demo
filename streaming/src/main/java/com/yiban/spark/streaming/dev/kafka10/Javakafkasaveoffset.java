@@ -80,7 +80,7 @@ public class Javakafkasaveoffset {
         Admin admin = con.getAdmin();
 
         //logger.warn(  " @@@@@@@@ " + admin ); //调试命令，判断连接是否成功
-        TableName tn = TableName.valueOf(datatable); //创建表名对象
+        TableName tableName = TableName.valueOf(datatable); //创建表名对象
 
 
         /*存放offset的表模型如下，请自行优化和扩展，请把每个rowkey对应的record的version设置为1（默认值），因为要覆盖原来保存的offset，而不是产生多个版本
@@ -94,11 +94,12 @@ public class Javakafkasaveoffset {
          */
 
         //判断数据表是否存在，如果不存在则从topic首位置消费，并新建该表；如果表存在，则从表中恢复话题对应分区的消息的offset
-        boolean isExists = admin.tableExists(tn);
-        logger.warn("tale isExists = "+isExists);
+        boolean isExists = admin.tableExists(tableName);
+        logger.warn("tale isExists = " + isExists);
         if (isExists) {
             try {
-                HTable table = new HTable(conf, datatable);
+                Table table = con.getTable(tableName);
+
                 Filter filter = new RowFilter(CompareOp.GREATER_OR_EQUAL,
                         new BinaryComparator(Bytes.toBytes(topics + "_")));
                 Scan scan = new Scan();
@@ -107,35 +108,63 @@ public class Javakafkasaveoffset {
 
                 // begin from the the offsets committed to the database
                 Map<TopicPartition, Long> fromOffsets = new HashMap<>();
-                String s1 = null;
-                int s2 = 0;
-                long s3 = 0;
+                String topic = null;
+                int partition = 0;
+                long offset = 0;
                 for (Result result : rs) {
+                    //获取rowkey
                     logger.warn("rowkey:" + new String(result.getRow()));
+
+                    //老的hbase获取数据写法
                     for (KeyValue keyValue : result.raw()) {
-                        if (new String(keyValue.getQualifier()).equals("topic")) {
-                            s1 = Bytes.toString(keyValue.getValue());
+                        String columnName = new String(keyValue.getQualifier());
+                        if ("topic".equals(columnName)) {
+                            topic = Bytes.toString(keyValue.getValue());
                             logger.warn("列族:" + new String(keyValue.getFamily())
                                     + " 列:" + new String(keyValue.getQualifier()) + ":"
-                                    + s1);
+                                    + topic);
                         }
 
-                        if (new String(keyValue.getQualifier()).equals("partition")) {
-                            s2 = Bytes.toInt(keyValue.getValue());
+                        if ("partition".equals(columnName)) {
+                            partition = Bytes.toInt(keyValue.getValue());
                             logger.warn("列族:" + new String(keyValue.getFamily())
                                     + " 列:" + new String(keyValue.getQualifier()) + ":"
-                                    + s2);
+                                    + partition);
                         }
 
-                        if (new String(keyValue.getQualifier()).equals("offset")) {
-                            s3 = Bytes.toLong(keyValue.getValue());
+                        if ("offset".equals(columnName)) {
+                            offset = Bytes.toLong(keyValue.getValue());
                             logger.warn("列族:" + new String(keyValue.getFamily())
                                     + " 列:" + new String(keyValue.getQualifier()) + ":"
-                                    + s3);
+                                    + offset);
                         }
                     }
 
-                    fromOffsets.put(new TopicPartition(s1, s2), s3);
+                    //新的hbase获取数据写法 效果同上
+                    for (Cell cell : result.rawCells()) {
+                        //获取rowkey columnfamily 列名 值
+                        String rowKey = Bytes.toString(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
+                        String family = Bytes.toString(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength());
+                        String colName = Bytes.toString(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+                        String value = Bytes.toString(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+                        System.out.println("rowKey = " + rowKey + ",family = " + family + ",colName = " + colName + ",value = " + value);
+                        switch (colName) {
+                            case "topic":
+                                topic = value;
+                                break;
+                            case "partition":
+                                partition = Integer.valueOf(value);
+                                break;
+                            case "offset":
+                                offset = Long.valueOf(value);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    //从hbase中获取topic-partition -> offset
+                    fromOffsets.put(new TopicPartition(topic, partition), offset);
                 }
 
                 stream = KafkaUtils.createDirectStream(
@@ -161,19 +190,20 @@ public class Javakafkasaveoffset {
             logger.warn(datatable + "表已经成功创建!----------------");
         }
 
-        JavaDStream<String> jpds = stream.map(
-                new Function<ConsumerRecord<String, String>, String>() {
-                    @Override
-                    public String call(ConsumerRecord<String, String> record) {
-                        String value = "";
-                        try {
-                            value = record.value();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        return value;
-                    }
-                });
+        //这段代码貌似没用
+//        JavaDStream<String> jpds = stream.map(
+//                new Function<ConsumerRecord<String, String>, String>() {
+//                    @Override
+//                    public String call(ConsumerRecord<String, String> record) {
+//                        String value = "";
+//                        try {
+//                            value = record.value();
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                        return value;
+//                    }
+//                });
 
 
         stream.foreachRDD(new VoidFunction<JavaRDD<ConsumerRecord<String, String>>>() {
@@ -181,9 +211,9 @@ public class Javakafkasaveoffset {
             public void call(JavaRDD<ConsumerRecord<String, String>> rdd) throws Exception {
 
                 /**
-                 * 添加业务代码
+                 * TODO 添加业务代码
                  */
-                rdd.map(new Function<ConsumerRecord<String,String>, Object>() {
+                rdd.map(new Function<ConsumerRecord<String, String>, Object>() {
                     @Override
                     public Object call(ConsumerRecord<String, String> v1) throws Exception {
                         return null;
@@ -202,15 +232,15 @@ public class Javakafkasaveoffset {
                     // update results
                     // update offsets where the end of existing offsets matches the beginning of this batch of offsets
                     // assert that offsets were updated correctly
-                    HTable table = new HTable(conf, datatable);
+                    Table table = con.getTable(tableName);
                     //create rowkey => (topic_partition)
                     Put put = new Put(Bytes.toBytes(offsetRange.topic() + "_" + offsetRange.partition()));
                     //create column(column family = "topic_partition_offset",column = "topic", value = topic)
-                    put.add(Bytes.toBytes("topic_partition_offset"), Bytes.toBytes("topic"),
+                    put.addColumn(Bytes.toBytes("topic_partition_offset"), Bytes.toBytes("topic"),
                             Bytes.toBytes(offsetRange.topic()));
-                    put.add(Bytes.toBytes("topic_partition_offset"), Bytes.toBytes("partition"),
+                    put.addColumn(Bytes.toBytes("topic_partition_offset"), Bytes.toBytes("partition"),
                             Bytes.toBytes(offsetRange.partition()));
-                    put.add(Bytes.toBytes("topic_partition_offset"), Bytes.toBytes("offset"),
+                    put.addColumn(Bytes.toBytes("topic_partition_offset"), Bytes.toBytes("offset"),
                             Bytes.toBytes(offsetRange.untilOffset()));
                     table.put(put);
                     logger.warn("add data Success!");
