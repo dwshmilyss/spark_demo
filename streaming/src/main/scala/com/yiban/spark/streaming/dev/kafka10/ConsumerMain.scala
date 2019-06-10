@@ -1,5 +1,6 @@
 package com.yiban.spark.streaming.dev.kafka10
 
+import com.yiban.spark.streaming.dev.kafka8.KafkaManager
 import kafka.serializer.StringDecoder
 import org.apache.log4j.LogManager
 import org.apache.spark.SparkConf

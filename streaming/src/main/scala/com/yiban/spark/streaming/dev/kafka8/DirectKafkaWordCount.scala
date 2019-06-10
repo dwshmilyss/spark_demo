@@ -36,6 +36,11 @@ object DirectKafkaWordCount {
       "enable.auto.commit" -> "true",
       "serializer.class" -> "kafka.serializer.StringEncoder"
     )
+
+
+    /**
+      * 原生的 createDirectStream
+      */
     val messages = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](
       ssc, kafkaParams, topicsSet)
 
@@ -44,6 +49,28 @@ object DirectKafkaWordCount {
     val words = lines.flatMap(_.split(" "))
     val wordCounts = words.map(x => (x, 1L)).reduceByKey(_ + _)
     wordCounts.print()
+
+
+    /**
+      * 自己写的 createDirectStream
+      */
+    val km = new KafkaManager(kafkaParams)
+
+    val messages1 = km.createDirectStream[String, String, StringDecoder, StringDecoder](
+      ssc, kafkaParams, topicsSet)
+
+    messages1.foreachRDD(rdd => {
+      if (!rdd.isEmpty()) {
+        // 先处理消息
+        val lines = messages1.map(_._2)
+        val words = lines.flatMap(_.split(" "))
+        val wordCounts = words.map(x => (x, 1L)).reduceByKey(_ + _)
+        wordCounts.print()
+
+        // 再更新offsets
+        km.updateZKOffsets(rdd)
+      }
+    })
 
     // Start the computation
     ssc.start()
