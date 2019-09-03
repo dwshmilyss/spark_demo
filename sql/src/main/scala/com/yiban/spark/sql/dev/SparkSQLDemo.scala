@@ -1,7 +1,8 @@
 package com.yiban.spark.sql.dev
 
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.spark.sql.types.{StringType, StructField}
 
 object SparkSQLDemo {
 
@@ -21,7 +22,7 @@ object SparkSQLDemo {
   val path: String = SparkSQLDemo.getClass.getClassLoader.getResource("data/people.json").getPath
 
   def main(args: Array[String]): Unit = {
-    test()
+    test1()
   }
 
   def test() = {
@@ -43,5 +44,36 @@ object SparkSQLDemo {
     spark.sql("SELECT * FROM global_temp.people").show()
     spark.newSession().sql("SELECT * FROM global_temp.people").show()
 
+  }
+
+  //这里的Person不能放在test1()里面
+  case class Person(name: String, age: Long)
+  def test1() = {
+    val caseClassDS = Seq(Person("Andy",32)).toDS()
+    caseClassDS.show()
+    val primitiveDS = Seq(1, 2, 3).toDS()
+    primitiveDS.map(_ + 1).collect()
+    val peopleDS = spark.read.json(path).as[Person]
+    peopleDS.printSchema()
+    peopleDS.map(person => Person(person.name,person.age)).printSchema()
+
+    peopleDS.createOrReplaceTempView("people")
+    val teenagersDF = spark.sql("SELECT name, age FROM people WHERE age BETWEEN 13 AND 19")
+    teenagersDF.map(teenager => "age : " + teenager(1)).show()
+    teenagersDF.map(teenager => "name: " + teenager.getAs[String]("name")).show()
+
+    implicit val mapEncoder = org.apache.spark.sql.Encoders.kryo[Map[String, Any]]
+
+    teenagersDF.map(teenager => teenager.getValuesMap[Any](List("name", "age"))).collect()
+  }
+
+  def test2() = {
+    import org.apache.spark.sql.types._
+    val peopleRDD = spark.sparkContext.textFile(path)
+    val schemaString = "name age"
+    val fields = schemaString.split(" ").map(fieldName => StructField(fieldName,StringType,nullable = true))
+    val schema = StructType(fields)
+    val rowRDD = peopleRDD.map(_.split(",")).map(row => Row(row(0),row(1).trim))
+    val peopleDF = spark.createDataFrame(rowRDD,schema)
   }
 }
