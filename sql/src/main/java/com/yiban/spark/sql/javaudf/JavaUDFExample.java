@@ -1,4 +1,6 @@
 package com.yiban.spark.sql.javaudf;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.spark.api.java.*;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.*;
@@ -11,11 +13,15 @@ import org.apache.spark.sql.types.DataTypes;
  */
 public class JavaUDFExample {
     public static void main(String[] args) {
-        System.setProperty("hadoop.home.dir", "G:\\soft\\hadoop-2.8.2\\hadoop-2.8.2");
-        SparkConf conf = new SparkConf().setAppName("java UDF example").setMaster("local");
-        SparkSession spark = SparkSession.builder().enableHiveSupport().config(conf).getOrCreate();
+        Logger logger = Logger.getLogger(JavaUDFExample.class);
+        Logger.getLogger("org").setLevel(Level.ERROR);
 
-        String path = "file:///D:/source_code/sparkDemo/sql/src/main/resources/data/temperatures.json";
+        System.setProperty("hadoop.home.dir", "G:\\soft\\hadoop-2.8.2\\hadoop-2.8.2");
+        SparkConf conf = new SparkConf().setAppName("java UDF example").setMaster("local[*]");
+        SparkSession spark = SparkSession.builder().config(conf).getOrCreate();
+
+//        String path = "file:///D:/source_code/sparkDemo/sql/src/main/resources/data/temperatures.json";
+        String path = JavaUDFExample.class.getClassLoader().getResource("data/temperatures.json").getPath();
         Dataset<Row> ds = spark.read().json(path);
         ds.createOrReplaceTempView("citytemps");
 
