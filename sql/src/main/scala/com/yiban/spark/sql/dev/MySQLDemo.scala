@@ -10,15 +10,16 @@ import org.apache.spark.sql.SparkSession
 object MySQLDemo {
 
   val url = "jdbc:mysql://10.21.3.120:3306/test?user=root&password=wenha0"
+  val url1 = "jdbc:mysql://localhost:3306/test?user=root&password=120653"
 
   val spark = SparkSession
     .builder()
-    .appName("mysql")
+    .appName("MySQLDemo")
     .master("local[*]")
     .getOrCreate()
 
   def main(args: Array[String]) {
-    test4()
+    test6("")
   }
 
 
@@ -100,6 +101,20 @@ object MySQLDemo {
   def test5(): Unit ={
     val df = spark.read.load("sql/src/main/resources/users.parquet")
     df.select("name", "favorite_color").write.save("sql/src/main/resources/namesAndFavColors.parquet")
+  }
+
+  /**
+    * 测试 分组topN
+    * @param param
+    */
+  def test6(param:String)={
+    val prop = new Properties();
+    val df = spark.read.jdbc(url1,"product",prop)
+    df.createOrReplaceTempView("product")
+//    val data = spark.sqlContext.sql("select * from product")
+//    val data = spark.sqlContext.sql("SELECT TBL.ID,TBL.PRODUCTNAME,TBL.TYPENAME,TBL.SALECOUNT\nFROM product TBL\nLEFT JOIN product L_TBL ON TBL.TYPENAME = L_TBL.TYPENAME AND TBL.SALECOUNT < L_TBL.SALECOUNT\nGROUP BY TBL.ID,TBL.PRODUCTNAME,TBL.TYPENAME,TBL.SALECOUNT\nHAVING COUNT(L_TBL.ID) < 3\nORDER BY TBL.TYPENAME,TBL.SALECOUNT DESC")
+    val data = spark.sqlContext.sql("select * from (\nselect id,productname,typename,salecount,rank()over(partition by typename order by salecount desc) mm from product\n) where mm <= 3")
+    data.show()
   }
 
 }

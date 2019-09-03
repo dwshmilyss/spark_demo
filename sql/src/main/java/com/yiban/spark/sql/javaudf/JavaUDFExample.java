@@ -11,6 +11,7 @@ import org.apache.spark.sql.types.DataTypes;
  */
 public class JavaUDFExample {
     public static void main(String[] args) {
+        System.setProperty("hadoop.home.dir", "G:\\soft\\hadoop-2.8.2\\hadoop-2.8.2");
         SparkConf conf = new SparkConf().setAppName("java UDF example").setMaster("local");
         SparkSession spark = SparkSession.builder().enableHiveSupport().config(conf).getOrCreate();
 
@@ -19,6 +20,7 @@ public class JavaUDFExample {
         ds.createOrReplaceTempView("citytemps");
 
         // Register the UDF with our SparkSession
+        // UDF1<type1,type2> 第一个类型是传入参数类型，第二个类型是返回值类型
         spark.udf().register("CTOF", new UDF1<Double, Double>() {
             @Override
             public Double call(Double degreesCelcius) {
@@ -26,6 +28,9 @@ public class JavaUDFExample {
             }
         }, DataTypes.DoubleType);
 
-        spark.sql("SELECT city, CTOF(avgLow) AS avgLowF, CTOF(avgHigh) AS avgHighF FROM citytemps").show();
+        Dataset res = spark.sql("SELECT city, CTOF(avgLow) AS avgLowF, CTOF(avgHigh) AS avgHighF FROM citytemps");
+        res.show();
+        System.out.println("===================");
+        res.explain();
     }
 }
