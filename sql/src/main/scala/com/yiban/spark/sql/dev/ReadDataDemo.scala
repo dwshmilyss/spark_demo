@@ -18,7 +18,7 @@ object ReadDataDemo {
   case class Sale(id: Int, productName: String, typeName: String, saleCount: Int)
 
   def main(args: Array[String]): Unit = {
-    System.setProperty("hadoop.home.dir", "D:\\soft\\hadoop\\hadoop-2.8.5")
+//    System.setProperty("hadoop.home.dir", "D:\\soft\\hadoop\\hadoop-2.8.5")
         testReadDataFromTxt
 //    testReadDataFromJSON
   }
@@ -122,4 +122,6 @@ object ReadDataDemo {
     //    }
     spark.close()
   }
+
+
 }
