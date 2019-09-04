@@ -1,8 +1,8 @@
 package com.yiban.spark.sql.dev
 
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.{Row, SparkSession}
-import org.apache.spark.sql.types.{StringType, StructField}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
 
 object SparkSQLDemo {
 
@@ -39,7 +39,7 @@ object SparkSQLDemo {
     df.createOrReplaceTempView("people")
     val sqlDF = spark.sql("select * from people")
     sqlDF.show()
-    println("====== GlobalTempView ======")
+    println("====== GlobalTempView 可以在不同的session中使用 ======")
     df.createGlobalTempView("people")
     spark.sql("SELECT * FROM global_temp.people").show()
     spark.newSession().sql("SELECT * FROM global_temp.people").show()
@@ -52,13 +52,25 @@ object SparkSQLDemo {
     val caseClassDS = Seq(Person("Andy",32)).toDS()
     caseClassDS.show()
     val primitiveDS = Seq(1, 2, 3).toDS()
-    primitiveDS.map(_ + 1).collect()
+    primitiveDS.map(_ + 1).collect().foreach(println)
     val peopleDS = spark.read.json(path).as[Person]
+    println("============== dataset ================ ")
     peopleDS.printSchema()
+    //dataset转rdd[Person]
+    peopleDS.rdd
+    println("============== dataframe ================ ")
+    val peopleDF = peopleDS.toDF()
+    peopleDF.printSchema()
+    //dataframe转rdd[Row]
+    peopleDF.rdd
+    println("============== 交换属性位置 ================ ")
     peopleDS.map(person => Person(person.name,person.age)).printSchema()
 
     peopleDS.createOrReplaceTempView("people")
     val teenagersDF = spark.sql("SELECT name, age FROM people WHERE age BETWEEN 13 AND 19")
+    val teenagersDS =  teenagersDF.as[Person]
+    println("================== teenagersDS ===============")
+    teenagersDS.printSchema()
     teenagersDF.map(teenager => "age : " + teenager(1)).show()
     teenagersDF.map(teenager => "name: " + teenager.getAs[String]("name")).show()
 
@@ -76,4 +88,27 @@ object SparkSQLDemo {
     val rowRDD = peopleRDD.map(_.split(",")).map(row => Row(row(0),row(1).trim))
     val peopleDF = spark.createDataFrame(rowRDD,schema)
   }
+
+
+  val path_txt: String = SparkSQLDemo.getClass.getClassLoader.getResource("data/people.txt").getPath
+
+  def rddToDFByCaseClass():DataFrame = {
+    val peopleRDD = spark.sparkContext.textFile(path_txt)
+      .map(_.split(",")).map(person => Person(person(0),person(1).trim.toLong))
+    val peopleDF = peopleRDD.toDF()
+    peopleDF
+  }
+
+  def rddToDF():DataFrame = {
+    val schema = StructType(
+      Seq(
+        StructField("name",StringType,true),
+        StructField("age",LongType,true)
+      )
+    )
+    val peopleRDD = spark.sparkContext.textFile(path_txt)
+      .map(_.split(",")).map(row => Row(row(0),row(1).trim.toLong))
+    spark.createDataFrame(peopleRDD,schema)
+  }
 }
+
