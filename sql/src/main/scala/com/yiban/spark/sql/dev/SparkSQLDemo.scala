@@ -2,7 +2,7 @@ package com.yiban.spark.sql.dev
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.expressions.{Aggregator, MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.{DataFrame, Encoder, Row, SparkSession}
+import org.apache.spark.sql.{DataFrame, Encoder, Encoders, Row, SparkSession}
 import org.apache.spark.sql.types._
 
 object SparkSQLDemo {
@@ -205,12 +205,20 @@ object SparkSQLDemo {
       b1.count += b2.count
       b1
     }
+    // Transform the output of the reduction 转换还原的输出
+    override def finish(reduction: Average): Double = reduction.sum.toDouble / reduction.count
+    // Specifies the Encoder for the intermediate value type
+    override def bufferEncoder: Encoder[Average] = Encoders.product
+    // Specifies the Encoder for the final output value type
+    override def outputEncoder: Encoder[Double] = Encoders.scalaDouble
+  }
 
-    override def finish(reduction: Average): Double = ???
-
-    override def bufferEncoder: Encoder[Average] = ???
-
-    override def outputEncoder: Encoder[Double] = ???
+  def test4() = {
+    val ds = spark.read.json(employee_json_path)
+    ds.show()
+    val averageSalary = MyAverageTypeSafe.toColumn.name("average_salary")
+    val result = ds.select(averageSalary)
+    result.show()
   }
 
 }
