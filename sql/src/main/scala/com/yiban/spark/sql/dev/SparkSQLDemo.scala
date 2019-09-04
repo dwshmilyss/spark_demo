@@ -22,7 +22,7 @@ object SparkSQLDemo {
   val path: String = SparkSQLDemo.getClass.getClassLoader.getResource("data/people.json").getPath
 
   def main(args: Array[String]): Unit = {
-    test1()
+    test2()
   }
 
   def test() = {
@@ -81,17 +81,25 @@ object SparkSQLDemo {
 
   def test2() = {
     import org.apache.spark.sql.types._
-    val peopleRDD = spark.sparkContext.textFile(path)
+    val peopleRDD = spark.sparkContext.textFile(path_txt)
     val schemaString = "name age"
     val fields = schemaString.split(" ").map(fieldName => StructField(fieldName,StringType,nullable = true))
     val schema = StructType(fields)
     val rowRDD = peopleRDD.map(_.split(",")).map(row => Row(row(0),row(1).trim))
     val peopleDF = spark.createDataFrame(rowRDD,schema)
+    peopleDF.createOrReplaceTempView("people")
+    val res = spark.sql("select name from people")
+    res.show()
+    res.map(x => "Name = " + x(0)).show()
   }
 
 
   val path_txt: String = SparkSQLDemo.getClass.getClassLoader.getResource("data/people.txt").getPath
 
+  /**
+    * RDD转DataFrame 示例1
+    * @return
+    */
   def rddToDFByCaseClass():DataFrame = {
     val peopleRDD = spark.sparkContext.textFile(path_txt)
       .map(_.split(",")).map(person => Person(person(0),person(1).trim.toLong))
@@ -99,6 +107,10 @@ object SparkSQLDemo {
     peopleDF
   }
 
+  /**
+    * RDD转DataFrame 示例2
+    * @return
+    */
   def rddToDF():DataFrame = {
     val schema = StructType(
       Seq(
