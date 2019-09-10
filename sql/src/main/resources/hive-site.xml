@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+<!-- 自定义文件目录 -->
+  <property>
+    <name>hive.exec.local.scratchdir</name>
+    <value>/usr/local/apache-hive-2.3.6-bin/iotmp/scratch</value>
+    <description>Local scratch space for Hive jobs</description>
+  </property>
+  <property>
+    <name>hive.downloaded.resources.dir</name>
+    <value>/usr/local/apache-hive-2.3.6-bin/iotmp/resources</value>
+    <description>Temporary local directory for added resources in the remote file system.</description>
+  </property>
+  <property>
+    <name>hive.server2.logging.operation.log.location</name>
+    <value>/usr/local/apache-hive-2.3.6-bin/iotmp/operation_logs</value>
+    <description>Top level directory where operation logs are stored if logging functionality is enabled</description>
+  </property>
+  <property>
+    <name>hive.querylog.location</name>
+    <value>/usr/local/apache-hive-2.3.6-bin/logs</value>
+    <description>Location of Hive run time structured log file</description>
+ </property>
+
+<property>
+  <name>hive.metastore.warehouse.dir</name>
+  <value>hdfs://master01:9000/user/hive/warehouse</value>
+  <description>location of default database for the warehouse</description>
+</property>
+
+<property>
+  <name>hive.exec.scratchdir</name>
+  <value>hdfs://master01:9000/user/hive/scratchdir</value>
+  <description>Scratch space for Hive jobs</description>
+</property>
+<!-- mysql configuration -->
+    <property>  
+        <name>javax.jdo.option.ConnectionURL</name>  
+        <value>jdbc:mysql://10.21.3.77:3306/hive?createDatabaseIfNotExist=true</value>  
+       <!-- <value>jdbc:mysql://10.21.3.120:3306/hive?createDatabaseIfNotExist=true</value> --> 
+    </property>  
+    <property>  
+        <name>javax.jdo.option.ConnectionDriverName</name>  
+        <value>com.mysql.jdbc.Driver</value>  
+    </property>  
+    <property>  
+        <name>javax.jdo.option.ConnectionUserName</name>  
+        <value>root</value>  
+    </property>  
+    <property>  
+        <name>javax.jdo.option.ConnectionPassword</name>  
+        <value>120653</value>  
+    </property>  
+    <property>    
+	<name>hive.metastore.schema.verification</name>    
+	<value>false</value>    
+	<description>Enforce metastore schema version consistency.    
+True: Verify that version information stored in metastore matches with one from Hive jars.  Also disable automatic sc      hema migration attempt. Users are required to manully migrate schema after Hive upgrade which ensures proper me       tastore schema migration. (Default)    
+False: Warn if the version information stored in metastore doesn't match with one from in Hive jars.    
+	</description>    
+    </property>  
+
+<property>  
+    <name>hive.metastore.local</name>  
+    <value>true</value><!-- 元数据存储在本地 -->  
+</property> 
+<!-- 配置hive和zookeeper的支持，支持分布式事务锁，防止并发访问同一个表的时候出现脏数据 -->
+ 	 <property>
+ 	   <name>hive.zookeeper.quorum</name>
+ 	   <value>master01:2181,master02:2181,slave01:2181,slave02:2181,slave03:2181</value>
+ 	   <description>
+ 	     List of ZooKeeper servers to talk to. This is needed for:
+ 	     1. Read/write locks - when hive.lock.manager is set to
+ 	     org.apache.hadoop.hive.ql.lockmgr.zookeeper.ZooKeeperHiveLockManager,
+ 	     2. When HiveServer2 supports service discovery via Zookeeper.
+ 	     3. For delegation token storage if zookeeper store is used, if
+ 	     hive.cluster.delegation.token.store.zookeeper.connectString is not set
+ 	     4. LLAP daemon registry service
+ 	   </description>
+ 	 </property>
+ 	 <property>
+ 	   <name>hive.support.concurrency</name>
+ 	   <value>true</value>
+ 	   <description>
+ 	     Whether Hive supports concurrency control or not.
+ 	     A ZooKeeper instance must be up and running when using zookeeper Hive lock manager
+ 	   </description>
+ 	 </property>
+</configuration>
