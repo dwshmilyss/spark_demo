@@ -2,7 +2,7 @@ package com.yiban.spark.sql.dev
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.expressions.{Aggregator, MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.{DataFrame, Encoder, Row, SparkSession}
+import org.apache.spark.sql._
 import org.apache.spark.sql.types._
 
 object SparkSQLDemo {
@@ -13,7 +13,7 @@ object SparkSQLDemo {
   val spark = SparkSession.builder()
     .appName("SparkSQLDemo")
     .master("local[*]")
-    .config("", "")
+    .config("fs.defaultFS", "file:///")
     .getOrCreate()
 
 
@@ -206,11 +206,18 @@ object SparkSQLDemo {
       b1
     }
 
-    override def finish(reduction: Average): Double = ???
+    override def finish(reduction: Average): Double = reduction.sum.toDouble / reduction.count
 
-    override def bufferEncoder: Encoder[Average] = ???
+    override def bufferEncoder: Encoder[Average] = Encoders.product
 
-    override def outputEncoder: Encoder[Double] = ???
+    override def outputEncoder: Encoder[Double] = Encoders.scalaDouble
+  }
+
+  def test4() = {
+    val ds = spark.read.json(employee_json_path).as[Employee]
+    val averageSalary = MyAverageTypeSafe.toColumn.name("average_salary")
+    val res = ds.select(averageSalary)
+    res.show()
   }
 
 }
