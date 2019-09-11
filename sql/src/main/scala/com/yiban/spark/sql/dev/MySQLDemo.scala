@@ -19,7 +19,7 @@ object MySQLDemo {
     .getOrCreate()
 
   def main(args: Array[String]) {
-    test6("")
+    test1()
   }
 
 
