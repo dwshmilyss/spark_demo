@@ -1,4 +1,4 @@
-package com.yiban.spark.sql.dev
+package com.yiban.spark.hive.scala
 
 import java.io.File
 
@@ -25,12 +25,11 @@ object HiveDemo {
     .enableHiveSupport()
     .getOrCreate()
 
-  import spark.implicits._
   import spark.sql
 
   case class Record(key: Int, value: String)
 
-  val kv1_txt_path: String = SparkSQLDemo.getClass.getClassLoader.getResource("data/kv1.txt").getPath
+  val kv1_txt_path: String = HiveDemo.getClass.getClassLoader.getResource("data/kv1.txt").getPath
 
   def test1() = {
     //    sql("CREATE TABLE IF NOT EXISTS src (key INT, value STRING) USING hive")
