@@ -28,51 +28,51 @@ object MultiStreamJoin {
 //    }
 
     //使用自定义的textFileStream
-    val blackListDStream = ssc.myTextFileStream("/blackList",Minutes(60)).map{
-      x =>
-        val temp = x.split(" ")
-        (temp(1), temp(0).toInt)
-    }
-    blackListDStream.print()
-
-    val adsClickStream = ssc.socketTextStream("10.21.3.73", 9999)
-
-    /**
-      * 模拟广告点击
-      * 格式：time,name
-      * return: name,(time,name)
-      */
-    val adsClickStreamMap = adsClickStream.map { ads => (ads.split(" ")(0), ads.split(" ")(1).toInt) }
-
-//        val res = adsClickStreamMap.transform(userClickRDD => {
-//          //通过leftOuterJoin操作 过滤用户点击数据中是黑名单的用户
-//          val joinedBlackListRDD = userClickRDD.leftOuterJoin(blackListRDD)
+////    val blackListDStream = ssc.myTextFileStream("/blackList",Minutes(60)).map{
+////      x =>
+////        val temp = x.split(" ")
+////        (temp(1), temp(0).toInt)
+////    }
+////    blackListDStream.print()
+////
+////    val adsClickStream = ssc.socketTextStream("10.21.3.73", 9999)
+////
+////    /**
+////      * 模拟广告点击
+////      * 格式：time,name
+////      * return: name,(time,name)
+////      */
+////    val adsClickStreamMap = adsClickStream.map { ads => (ads.split(" ")(0), ads.split(" ")(1).toInt) }
+////
+//////        val res = adsClickStreamMap.transform(userClickRDD => {
+//////          //通过leftOuterJoin操作 过滤用户点击数据中是黑名单的用户
+//////          val joinedBlackListRDD = userClickRDD.leftOuterJoin(blackListRDD)
+//////
+//////          val validClicked = joinedBlackListRDD.filter(joinedItem => {
+//////            if (joinedItem._2._2.getOrElse(false))
+//////              false
+//////            else
+//////              true
+//////          })
+//////          val res = validClicked.map(x => x._2._1)
+//////          res
+//////        })
 //
-//          val validClicked = joinedBlackListRDD.filter(joinedItem => {
-//            if (joinedItem._2._2.getOrElse(false))
-//              false
-//            else
-//              true
-//          })
-//          val res = validClicked.map(x => x._2._1)
-//          res
-//        })
-
-    val res = adsClickStreamMap.transformWith(blackListDStream, (userClickRDD: RDD[(String,Int)], blackListRDD: RDD[(String,Int)]) => {
-      //通过leftOuterJoin操作 过滤用户点击数据中是黑名单的用户
-      val joinedBlackListRDD = userClickRDD.leftOuterJoin(blackListRDD)
-      val validClicked = joinedBlackListRDD.filter(joinedItem => {
-        if (joinedItem._2._2.getOrElse(0) == 0)
-          true
-        else
-          false
-      })
-      val res = validClicked.map(x => (x._1,x._2._1))
-      res
-    })
-
-    //打印 action触发job执行
-    res.print()
+//    val res = adsClickStreamMap.transformWith(blackListDStream, (userClickRDD: RDD[(String,Int)], blackListRDD: RDD[(String,Int)]) => {
+//      //通过leftOuterJoin操作 过滤用户点击数据中是黑名单的用户
+//      val joinedBlackListRDD = userClickRDD.leftOuterJoin(blackListRDD)
+//      val validClicked = joinedBlackListRDD.filter(joinedItem => {
+//        if (joinedItem._2._2.getOrElse(0) == 0)
+//          true
+//        else
+//          false
+//      })
+//      val res = validClicked.map(x => (x._1,x._2._1))
+//      res
+//    })
+//
+//    //打印 action触发job执行
+//    res.print()
 
     /**
       * 如果一些batch中没有数据 那么Spark Streaming将会产生EmptyRDD的RDD

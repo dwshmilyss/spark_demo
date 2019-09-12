@@ -32,7 +32,7 @@ object KafkaByZk1 {
     val messages = createDirectStream(kafkaCluster,Set(topic),groupId)
     messages.foreachRDD{
           //添加业务逻辑
-      rdd => _
+      rdd => ""
       // 更新offsets
       updateZKOffsets(rdd,kafkaCluster)
     }
