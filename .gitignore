@@ -7,4 +7,4 @@ spark-warehouse/
 /streaming/src/main/resources/META-INF/
 /core/src/main/resources/META-INF/
 metastore_db
-logs
+logscd 
