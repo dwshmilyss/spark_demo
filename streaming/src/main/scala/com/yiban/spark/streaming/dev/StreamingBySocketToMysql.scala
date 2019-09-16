@@ -2,6 +2,7 @@ package com.yiban.spark.streaming.dev
 
 import java.sql.{Connection, DriverManager, PreparedStatement}
 
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
@@ -10,14 +11,18 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
  * Created by 10000347 on 2015/7/6.
  */
 object StreamingBySocketToMysql {
+
+  val logger = Logger.getLogger("org.apache.spark")
+  Logger.getLogger("org").setLevel(Level.ERROR)
+
   def main(args: Array[String]) {
     val sparkConf = new SparkConf().setAppName("StreamingBySocketToMysql").setMaster("local[*]")
     val ssc = new StreamingContext(sparkConf, Seconds(10));
     // 获得一个DStream负责连接 监听端口:地址
-    val dstream = ssc.socketTextStream("10.21.3.126", 9999);
+    val dstream = ssc.socketTextStream("localhost", 9999);
 
 
-    ssc.checkpoint("./")
+    ssc.checkpoint("./checkpoint")
     val addFunc = (currValues: Seq[Int], prevValueState: Option[Int]) => {
       //通过Spark内部的reduceByKey按key规约，然后这里传入某key当前批次的Seq/List,再计算当前批次的总和
       val currentCount = currValues.sum
