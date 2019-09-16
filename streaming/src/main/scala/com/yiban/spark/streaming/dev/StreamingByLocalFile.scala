@@ -1,6 +1,6 @@
 package com.yiban.spark.streaming.dev
 
-import org.apache.log4j.Logger
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
@@ -9,11 +9,12 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
  */
 object StreamingByLocalFile {
   val logger = Logger.getLogger(StreamingByLocalFile.getClass.getName)
+  Logger.getLogger("org").setLevel(Level.ERROR)
 
   def main(args: Array[String]) {
     val sc = new SparkConf().setAppName("StreamingByLocalFile").setMaster("local[2]")
     val ssc = new StreamingContext(sc,Seconds(5))
-    val lines = ssc.textFileStream(args(0))
+    val lines = ssc.textFileStream("file:///d:/test")
     // 对每一行数据执行Split操作
     val words = lines.flatMap(_.split(" "));
     // 统计word的数量

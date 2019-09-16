@@ -14,51 +14,56 @@ object MultiStreamJoin {
     /**
       * 模拟创建黑名单 直接定义
       */
-//    val blackList = Array(("hadoop", true), ("spark", true))
-//    val blackListRDD = ssc.sparkContext.parallelize(blackList, 8)
+    val blackList = Array(("hadoop", true), ("spark", true))
+    val blackListRDD = ssc.sparkContext.parallelize(blackList, 8)
 
     /**
       * 模拟创建黑名单 从HDFS中获取
       *
       */
-//    val blackListDStream = ssc.textFileStream("/blackList").map {
-//      x =>
-//        val temp = x.split(" ")
-//        (temp(1), temp(0).toInt)
-//    }
+    val blackListDStream = ssc.textFileStream("/blackList").map {
+      x =>
+        val temp = x.split(" ")
+        (temp(1), temp(0).toInt)
+    }
 
-    //使用自定义的textFileStream
-////    val blackListDStream = ssc.myTextFileStream("/blackList",Minutes(60)).map{
-////      x =>
-////        val temp = x.split(" ")
-////        (temp(1), temp(0).toInt)
-////    }
-////    blackListDStream.print()
-////
-////    val adsClickStream = ssc.socketTextStream("10.21.3.73", 9999)
-////
-////    /**
-////      * 模拟广告点击
-////      * 格式：time,name
-////      * return: name,(time,name)
-////      */
-////    val adsClickStreamMap = adsClickStream.map { ads => (ads.split(" ")(0), ads.split(" ")(1).toInt) }
-////
-//////        val res = adsClickStreamMap.transform(userClickRDD => {
-//////          //通过leftOuterJoin操作 过滤用户点击数据中是黑名单的用户
-//////          val joinedBlackListRDD = userClickRDD.leftOuterJoin(blackListRDD)
-//////
-//////          val validClicked = joinedBlackListRDD.filter(joinedItem => {
-//////            if (joinedItem._2._2.getOrElse(false))
-//////              false
-//////            else
-//////              true
-//////          })
-//////          val res = validClicked.map(x => x._2._1)
-//////          res
-//////        })
-//
-//    val res = adsClickStreamMap.transformWith(blackListDStream, (userClickRDD: RDD[(String,Int)], blackListRDD: RDD[(String,Int)]) => {
+    /**
+      * 使用自定义的textFileStream。
+      * 因为黑名单是从HDFS中加载的，有可能数据量很大，而且数据或许很久都不变更，没必要每个batch都加载一次。
+      * 这里的代码需要使用修改过的源码
+      */
+    //    val blackListDStream = ssc.myTextFileStream("/blackList",Minutes(60)).map{
+    //      x =>
+    //        val temp = x.split(" ")
+    //        (temp(1), temp(0).toInt)
+    //    }
+    //    blackListDStream.print()
+
+    val adsClickStream = ssc.socketTextStream("10.21.3.73", 9999)
+
+    /**
+      * 模拟广告点击
+      * 格式：time,name
+      * return: name,(time,name)
+      */
+    val adsClickStreamMap = adsClickStream.map { ads => (ads.split(" ")(0), ads.split(" ")(1).toInt) }
+
+    //下面两种方式都可以，就是transform和transformWith的区别而已
+    val res = adsClickStreamMap.transform(userClickRDD => {
+      //通过leftOuterJoin操作 过滤用户点击数据中是黑名单的用户
+      val joinedBlackListRDD = userClickRDD.leftOuterJoin(blackListRDD)
+
+      val validClicked = joinedBlackListRDD.filter(joinedItem => {
+        if (joinedItem._2._2.getOrElse(false))
+          false
+        else
+          true
+      })
+      val res = validClicked.map(x => x._2._1)
+      res
+    })
+
+//    val res = adsClickStreamMap.transformWith(blackListDStream, (userClickRDD: RDD[(String, Int)], blackListRDD: RDD[(String, Int)]) => {
 //      //通过leftOuterJoin操作 过滤用户点击数据中是黑名单的用户
 //      val joinedBlackListRDD = userClickRDD.leftOuterJoin(blackListRDD)
 //      val validClicked = joinedBlackListRDD.filter(joinedItem => {
@@ -67,12 +72,12 @@ object MultiStreamJoin {
 //        else
 //          false
 //      })
-//      val res = validClicked.map(x => (x._1,x._2._1))
+//      val res = validClicked.map(x => (x._1, x._2._1))
 //      res
 //    })
-//
-//    //打印 action触发job执行
-//    res.print()
+
+    //打印 action触发job执行
+    res.print()
 
     /**
       * 如果一些batch中没有数据 那么Spark Streaming将会产生EmptyRDD的RDD
@@ -80,11 +85,11 @@ object MultiStreamJoin {
       * 这时候可以判断rdd的partitions是否为空，EmptyRDD的partitions肯定是空的
       * 也可以调用rdd.isEmpty()判断(spark-1.3.0后支持此函数)
       */
-//    res.foreachRDD(rdd => {
-//      if(!rdd.partitions.isEmpty){
-//        rdd.saveAsTextFile(outputDir)
-//      }
-//    })
+    //    res.foreachRDD(rdd => {
+    //      if(!rdd.partitions.isEmpty){
+    //        rdd.saveAsTextFile(outputDir)
+    //      }
+    //    })
     ssc.start()
     ssc.awaitTermination()
   }
