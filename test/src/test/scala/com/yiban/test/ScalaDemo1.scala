@@ -28,4 +28,10 @@ class ScalaDemo1 {
       .master("local[*]")
       .getOrCreate()
   }
+
+  @Test
+  def test4() ={
+    val sonClass = new SonClass
+  }
+
 }
