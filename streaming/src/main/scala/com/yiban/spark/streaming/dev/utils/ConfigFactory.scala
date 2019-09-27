@@ -1,7 +1,7 @@
-package com.yiban.spark.streaming.dev
+package com.yiban.spark.streaming.dev.utils
 
-import java.io.FileInputStream
 import java.util.Properties
+
 import resource.managed
 
 object ConfigFactory {
