@@ -23,11 +23,11 @@ object ConfigFactory {
 
   class Config(properties: Properties){
     def getInt(param:String):Int = {
-       properties.getProperty(param).toInt
+      return properties.getProperty(param).toInt
     }
 
     def getString(param:String):String = {
-       properties.getProperty(param)
+      return properties.getProperty(param)
     }
   }
 }

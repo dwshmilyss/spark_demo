@@ -1,7 +1,5 @@
 package com.yiban.spark.structured.dev
 
-import java.sql.Timestamp
-
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 
@@ -27,17 +25,15 @@ object SocketDemo {
       .format("socket")
       .option("host","localhost")
       .option("port",9999)
-      .option("includeTimestamp", true)
       .load()
 
-    val words = lines.as[(String,Timestamp)].flatMap(
-      line => line._1.split(" ").map(word => (word,line._2)))
-//    val wordCounts = words.groupBy("value").count()
+    val words = lines.as[String].flatMap(_.split(" "))
+    val wordCounts = words.groupBy("value").count()
 
-    words.printSchema()
+    wordCounts.printSchema()
 
-    val query = words.writeStream
-      .outputMode("update")
+    val query = wordCounts.writeStream
+      .outputMode("complete")
       .format("console")
       .start()
 

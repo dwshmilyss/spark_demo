@@ -1,42 +1,59 @@
 package com.yiban.spark.streaming.dev.kafka10.example_redis
 
+import java.util
+
+import com.yiban.spark.streaming.dev.utils.ConfigUtils
+import com.yiban.spark.streaming.dev.utils.ConfigUtils.Config
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.kafka.HasOffsetRanges
-import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies}
+import org.apache.spark.streaming.dstream.InputDStream
+import org.apache.spark.streaming.kafka010._
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import redis.clients.jedis.Pipeline
 
 object TestSparkStreaming {
+
+  val logger:Logger = Logger.getLogger(TestSparkStreaming.getClass)
+  Logger.getLogger("org").setLevel(Level.ERROR)
+
   def main(args: Array[String]): Unit = {
-    val brokers = "10.21.3.73:9092"
-    val topic = ""
+    val kafkaConfig:Config = ConfigUtils.loadProperties("kafka.properties")
+    val brokers = kafkaConfig.getString("brokers")
+    val topic = kafkaConfig.getString("topic")
+    val groupId = kafkaConfig.getString("groupId")
     val partition:Int = 0//只有一个分区
-    val start_offset:Long = 0l
+
+    val enable_auto_commit = kafkaConfig.getString("enable.auto.commit")
+    val auto_offset_reset= kafkaConfig.getString("auto.offset.reset")
+    val key_deserializer= kafkaConfig.getString("key.deserializer")
+    val value_deserializer= kafkaConfig.getString("value.deserializer")
 
     //kafka参数
     val kafkaParams = Map[String, Object](
       "bootstrap.servers" -> brokers,
-      "key.deserializer" -> classOf[StringDeserializer],
-      "value.deserializer" -> classOf[StringDeserializer],
-      "group.id" -> "",
-      "enable.auto.commit" -> (false: java.lang.Boolean),
-      "auto.offset.reset" -> "none"
+      "key.deserializer" -> key_deserializer,
+      "value.deserializer" -> value_deserializer,
+      "group.id" -> groupId,
+      "enable.auto.commit" -> enable_auto_commit,
+      "auto.offset.reset" -> auto_offset_reset
     )
 
+    val redisConfig:Config = ConfigUtils.loadProperties("redis.properties")
     //redis configuration
-    val maxTotal = 10
-    val maxIdle = 10
-    val minIdle = 1
-    val redisHost = "10.21.3.77"
-    val redisPort = 6379
-    val redisTimeout = 30000
+    val maxTotal = redisConfig.getInt("maxTotal")
+    val maxIdle = redisConfig.getInt("maxIdle")
+    val minIdle = redisConfig.getInt("minIdle")
+    val redisHost = redisConfig.getString("redisHost")
+    val redisPort = redisConfig.getInt("redisPort")
+    val redisTimeout = redisConfig.getInt("redisTimeout")
     //默认DB 用户存放offset和pv数据
-    val dbDefaultIndex = 8
+    val dbDefaultIndex = redisConfig.getInt("dbDefaultIndex")
     InternalRedisClient.makePool(redisHost,redisPort,redisTimeout,maxTotal,maxIdle,minIdle)
+
     val conf = new SparkConf().setAppName("TestSparkStreamingByRedis").setIfMissing("spark.master","local[*]")
     val ssc = new StreamingContext(conf,Seconds(10))
 
@@ -44,10 +61,12 @@ object TestSparkStreaming {
     val jedis = InternalRedisClient.getPool.getResource
     jedis.select(dbDefaultIndex)
     val topic_partition_key = topic + "_" + partition
-    var lastOffset = 0l
+    var lastOffset = 2102l//设置初始的offset 注意该值一定不能比当前topic_patition的最小值还小，否则会报错
     val lastSaveOffset = jedis.get(topic_partition_key)
+    jedis.close()//注意这里不是关闭连接，在JedisPool模式下，Jedis会被归还给资源池。
 
-    if (null != lastSaveOffset) {
+
+    var recordDStream: InputDStream[ConsumerRecord[String, String]] = if (null != lastSaveOffset) {//如果redis中获取到了当前的offset，就从offset开始处理
       try {
         lastOffset = lastSaveOffset.toLong
       } catch {
@@ -55,27 +74,42 @@ object TestSparkStreaming {
           println("get lastSaveOffset error,lastSaveOffset from redis [" + lastSaveOffset + "]")
           System.exit(1)
       }
-    }
-    InternalRedisClient.getPool.returnResource(jedis)
-    println("lastOffset from redis -> " + lastOffset)
+      println("lastOffset from redis -> " + lastOffset)
 
-    //设置每个分区的起始offset
-    val fromOffsets = Map{new TopicPartition(topic,partition) -> lastOffset}
+      //设置每个分区的起始offset
+      val fromOffsets = Map{new TopicPartition(topic,partition) -> lastOffset}
+
+      KafkaUtils.createDirectStream[String,String](
+        ssc,
+        LocationStrategies.PreferConsistent,
+        ConsumerStrategies.Subscribe[String,String](Array(topic),kafkaParams,fromOffsets)
+      )
+    } else{//如果没有获取到offset 就从auto.offset.reset的配置开始处理
+      KafkaUtils.createDirectStream[String,String](
+        ssc,
+        LocationStrategies.PreferConsistent,
+        ConsumerStrategies.Subscribe[String,String](Array(topic),kafkaParams)
+      )
+    }
+
 
     //使用DirectApi创建stream
-    val stream = KafkaUtils.createDirectStream[String,String](
-      ssc,
-      LocationStrategies.PreferConsistent,
-      ConsumerStrategies.Assign[String,String](fromOffsets.keys.toList,kafkaParams,fromOffsets)
-    )
+//    val stream = KafkaUtils.createDirectStream[String,String](
+//      ssc,
+//      LocationStrategies.PreferConsistent,
+//      ConsumerStrategies.Assign[String,String](fromOffsets.keys.toList,kafkaParams,fromOffsets)
+//    )
+
+
 
     //开始处理批次消息
-    stream.foreachRDD{
+    recordDStream.foreachRDD{
       rdd =>
         val offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
 
         val result = processLogs(rdd)
         println("============= Total " + result.length + "events in this batch ....")
+        //这里必须重新声明变量，因为上面的jedis是在driver中，而这里的代码是在executor中执行的
         val jedis = InternalRedisClient.getPool.getResource
         val p1 : Pipeline = jedis.pipelined()
         p1.select(dbDefaultIndex)
@@ -97,19 +131,23 @@ object TestSparkStreaming {
             p1.sadd(uv_by_day_key,record.user_id)
         }
 
-        //更新offset
+
+        //更新offset 这里是更新到redis
         offsetRanges.foreach{
           offsetRange =>
             println("partition:"+offsetRange.partition + ",fromOffset:" + offsetRange.fromOffset + ",untilOffset:" + offsetRange.untilOffset)
             val topic_partition_key  = offsetRange.topic + "_" + offsetRange.partition
             p1.set(topic_partition_key,offsetRange.untilOffset + "")
         }
+        //也可以手动提交
+//        recordDStream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)
+
 
         //提交事务
         p1.exec()
         p1.sync()//关闭pipeline
 
-        InternalRedisClient.getPool.returnResource(jedis)
+        jedis.close()
     }
 
 
