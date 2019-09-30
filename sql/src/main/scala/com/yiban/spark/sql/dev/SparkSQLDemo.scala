@@ -116,7 +116,7 @@ object SparkSQLDemo {
     *
     * @return
     */
-  def rddToDF(): DataFrame = {
+  def rddToDFBySchema(): DataFrame = {
     val schema = StructType(
       Seq(
         StructField("name", StringType, true),
