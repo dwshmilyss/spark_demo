@@ -109,8 +109,7 @@ object SparkSqlPrefDemo {
 //    displayHTML(experiment.html)
 
     //获取查询结果
-    // 1. 如果 experiment 还没有关闭，可以使用 experiment.getCurrentResults 方法获取
-    //从 experiment 获取结果
+    // 1. 如果 experiment 还没有关闭，可以使用 experiment.getCurrentResults 方法从 experiment 获取结果
     import org.apache.spark.sql.functions.{col, lit, substring}
     experiment.getCurrentResults.
       withColumn("Name", substring(col("name"), 2, 100)).
@@ -118,7 +117,6 @@ object SparkSqlPrefDemo {
       selectExpr("Name", "Runtime")
 
     //2. 如果已经关闭，则可以从 resultLocation 中获取结果JSON文件并解析
-    //从文件中读取
     val result = spark.read.json(resultLocation)
     import spark.implicits._
     result.select("results.name","results.executionTime").flatMap(r=>{
