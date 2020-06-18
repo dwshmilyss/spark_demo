@@ -8,7 +8,7 @@ class ScalaDemo1 {
 
   @Test
   def test1() ={
-    println("aaa")
+    println((math.log(4)*20).toInt)
   }
 
   @Test
