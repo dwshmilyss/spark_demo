@@ -10,3 +10,4 @@ metastore_db
 logs
 checkpoint
 *.log
+/core/src/main/scala/META-INF
