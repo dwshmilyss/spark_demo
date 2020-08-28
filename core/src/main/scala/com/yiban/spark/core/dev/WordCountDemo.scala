@@ -5,7 +5,6 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 object WordCountDemo extends Logging{
   def main(args: Array[String]) {
-    //    System.setProperty("hadoop.home.dir","G:\\soft_by_work\\hadoop_soft\\hadoop-2.6.0")
     //    val conf = new SparkConf().setAppName("Spark Pi").setMaster("spark://master01:7077").setJars(List("/root/core.jar"))
     //    val conf = new SparkConf().setAppName("Spark Pi").setMaster("local")
     //  如果要远程调试，则只需启动一个worker(10.21.3.75)

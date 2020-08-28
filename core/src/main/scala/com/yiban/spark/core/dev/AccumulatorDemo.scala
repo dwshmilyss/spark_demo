@@ -141,79 +141,82 @@ object AccumulatorDemo {
     println()
     sc.stop()
   }
-}
 
-
-object MapAccumulableParam extends AccumulableParam[mutable.Map[String, Int], String] {
-  /**
-    * 添加一个string的元素到累加器中
-    *
-    * @param r
-    * @param t
-    * @return
-    */
-  override def addAccumulator(r: mutable.Map[String, Int], t: String): mutable.Map[String, Int] = {
-    r += t -> (1 + r.getOrElse(t, 0))
-  }
-
-  /**
-    * 合并两个数据
-    *
-    * @param r1
-    * @param r2
-    * @return
-    */
-  override def addInPlace(r1: mutable.Map[String, Int], r2: mutable.Map[String, Int]): mutable.Map[String, Int] = {
-    r2.foldLeft(r1)((a, b) => {
-      a += b._1 -> (a.getOrElse(b._1, 0) + b._2)
-    })
-  }
-
-  /**
-    * 返回初始值
-    *
-    * @param initialValue
-    * @return
-    */
-  override def zero(initialValue: mutable.Map[String, Int]): mutable.Map[String, Int] = initialValue
-}
-
-/**
-  * spark2.0 自定义累加器
-  */
-import org.apache.spark.util.AccumulatorV2
-class LogAccumulator extends AccumulatorV2[String, java.util.Set[String]]{
-  private val _logArray: java.util.Set[String] = new java.util.HashSet[String]()
-
-  override def isZero: Boolean = {
-    _logArray.isEmpty
-  }
-
-  override def reset(): Unit = {
-    _logArray.clear()
-  }
-
-  override def add(v: String): Unit = {
-    _logArray.add(v)
-  }
-
-  override def merge(other: AccumulatorV2[String, java.util.Set[String]]): Unit = {
-//    other match {
-//      case o: LogAccumulator => _logArray.addAll(o.value)
-//    }
-    _logArray.addAll(other.value)
-  }
-
-  override def value: java.util.Set[String] = {
-//    java.util.Collections.unmodifiableSet(_logArray)
-    return _logArray
-  }
-
-  override def copy(): AccumulatorV2[String, java.util.Set[String]] = {
-    val newAcc = new LogAccumulator()
-    newAcc.synchronized{
-      newAcc._logArray.addAll(_logArray)
+  object MapAccumulableParam extends AccumulableParam[mutable.Map[String, Int], String] {
+    /**
+     * 添加一个string的元素到累加器中
+     *
+     * @param r
+     * @param t
+     * @return
+     */
+    override def addAccumulator(r: mutable.Map[String, Int], t: String): mutable.Map[String, Int] = {
+      r += t -> (1 + r.getOrElse(t, 0))
     }
-    newAcc
+
+    /**
+     * 合并两个数据
+     *
+     * @param r1
+     * @param r2
+     * @return
+     */
+    override def addInPlace(r1: mutable.Map[String, Int], r2: mutable.Map[String, Int]): mutable.Map[String, Int] = {
+      r2.foldLeft(r1)((a, b) => {
+        a += b._1 -> (a.getOrElse(b._1, 0) + b._2)
+      })
+    }
+
+    /**
+     * 返回初始值
+     *
+     * @param initialValue
+     * @return
+     */
+    override def zero(initialValue: mutable.Map[String, Int]): mutable.Map[String, Int] = initialValue
   }
+
+  /**
+   * spark2.0 自定义累加器
+   */
+  import org.apache.spark.util.AccumulatorV2
+  class LogAccumulator extends AccumulatorV2[String, java.util.Set[String]]{
+    private val _logArray: java.util.Set[String] = new java.util.HashSet[String]()
+
+    override def isZero: Boolean = {
+      _logArray.isEmpty
+    }
+
+    override def reset(): Unit = {
+      _logArray.clear()
+    }
+
+    override def add(v: String): Unit = {
+      _logArray.add(v)
+    }
+
+    override def merge(other: AccumulatorV2[String, java.util.Set[String]]): Unit = {
+      //    other match {
+      //      case o: LogAccumulator => _logArray.addAll(o.value)
+      //    }
+      _logArray.addAll(other.value)
+    }
+
+    override def value: java.util.Set[String] = {
+      //    java.util.Collections.unmodifiableSet(_logArray)
+      return _logArray
+    }
+
+    override def copy(): AccumulatorV2[String, java.util.Set[String]] = {
+      val newAcc = new LogAccumulator()
+      newAcc.synchronized{
+        newAcc._logArray.addAll(_logArray)
+      }
+      newAcc
+    }
+  }
+
 }
+
+
+
