@@ -1,4 +1,4 @@
-package com.yiban.spark.core.dev.dependency
+package com.yiban.spark.core.dev.dependency.narrow
 
 import com.yiban.spark.core.dev.BaseSparkContext
 import org.apache.spark.rdd.RDD

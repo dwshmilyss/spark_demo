@@ -170,7 +170,7 @@ public class Javakafkasaveoffset {
                 stream = KafkaUtils.createDirectStream(
                         jssc,
                         LocationStrategies.PreferConsistent(),
-                        ConsumerStrategies.<String, String>Assign(fromOffsets.keySet(), kafkaParams, fromOffsets));
+                        ConsumerStrategies.Assign(fromOffsets.keySet(), kafkaParams, fromOffsets));
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -180,7 +180,7 @@ public class Javakafkasaveoffset {
             stream = KafkaUtils.createDirectStream(
                     jssc,
                     LocationStrategies.PreferConsistent(),
-                    ConsumerStrategies.<String, String>Subscribe(topicsSet, kafkaParams));
+                    ConsumerStrategies.Subscribe(topicsSet, kafkaParams));
 
 
             //并创建TopicOffset表

@@ -1,7 +1,6 @@
-package com.yiban.spark.core.dev.dependency
+package com.yiban.spark.core.dev.dependency.narrow
 
 import com.yiban.spark.core.dev.BaseSparkContext
-import com.yiban.spark.core.dev.dependency.OneToOneDemo.getLocalSparkContext
 
 /**
  * 子RDD的partition和父RDD的partition个数相同，只是父RDD是多个（union），例如：
