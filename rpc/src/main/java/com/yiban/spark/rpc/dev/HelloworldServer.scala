@@ -11,9 +11,11 @@ object HelloworldServer {
     val config = RpcEnvServerConfig(new RpcConf(), "hello-server", host, 52345)
     val rpcEnv: RpcEnv = NettyRpcEnvFactory.create(config)
     val helloEndpoint: RpcEndpoint = new HelloEndpoint(rpcEnv)
+    //服务端必须启动EndpointRef 客户端才能和其通信
     val serverEndpointRef = rpcEnv.setupEndpoint("hello-service", helloEndpoint)
-    val res = serverEndpointRef.askWithRetry[String](SayBye("neo"))
-    println(res)
+    //TODO test 自己向自己发送消息
+    //    val res = serverEndpointRef.askWithRetry[String](SayBye("neo"))
+    //    println(res)
     rpcEnv.awaitTermination()
   }
 }
@@ -27,6 +29,7 @@ class HelloEndpoint(override val rpcEnv: RpcEnv) extends RpcEndpoint {
   override def receiveAndReply(context: RpcCallContext): PartialFunction[Any, Unit] = {
     case SayHi(msg) => {
       //println(s"receive $msg")
+      Thread.sleep(10*1000)
       context.reply(s"hi, $msg")
     }
     case SayBye(msg) => {

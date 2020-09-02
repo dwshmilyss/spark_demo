@@ -17,7 +17,7 @@ class MySparkListener extends SparkListener{
       case JobSucceeded =>
         println("job:end:JobSucceeded")
       case JobFailed(exception) =>
-        println("job:end:file")
+        println("job:end:fail")
         exception.printStackTrace()
     }
     println("*************************************************")
