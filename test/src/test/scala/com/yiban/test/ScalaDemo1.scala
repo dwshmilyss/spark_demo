@@ -1,7 +1,10 @@
 package com.yiban.test
 
 import org.apache.spark.sql.SparkSession
+import org.junit
 import org.junit.Test
+
+import java.util
 
 @Test
 class ScalaDemo1 {
@@ -32,6 +35,24 @@ class ScalaDemo1 {
   @Test
   def test4() ={
     val sonClass = new SonClass
+
+    val a = 1
+    a match {
+      case 1 => println(1)
+      case 1 => println(2)
+
+    }
+  }
+
+  @junit.Test
+  def test5(): Unit ={
+    val list:java.util.HashSet[String] = new util.HashSet[String](1)
+    list.add("1")
+    list.add("2")
+    list.add("3")
+    println(list.size())
+    list.add("4")
+    println(list.size())
   }
 
 }
