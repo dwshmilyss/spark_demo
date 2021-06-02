@@ -1,103 +1,154 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-<!--
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License. See accompanying LICENSE file.
--->
-
-<!-- Put site-specific property overrides in this file. -->
-
-<configuration>
- <!-- 指定hdfs的nameservice为ns1,是NameNode的URI。hdfs://主机名全限定名:端口/ -->
+  <configuration>
+    
     <property>
-        <name>fs.defaultFS</name>
-        <value>hdfs://gagcluster</value>
-        <!--<value>hdfs://yiban.isilon:8020</value>-->
+      <name>fs.azure.user.agent.prefix</name>
+      <value>User-Agent: APN/1.0 Hortonworks/1.0 HDP/2.6.5.0-292</value>
     </property>
-  <!-- SequenceFiles在读写中可以使用的缓存大小 单位bytes -->
+    
     <property>
-        <name>io.file.buffer.size</name>
-        <value>131072</value>
+      <name>fs.defaultFS</name>
+      <value>hdfs://hdp1-pre1.leadswarp.com:8020</value>
+      <final>true</final>
     </property>
+    
     <property>
-        <name>hadoop.tmp.dir</name>
-        <value>/usr/local/data/hadoop-2.8.2/tmp/hadoop-${user.name}</value>
+      <name>fs.s3a.fast.upload</name>
+      <value>true</value>
     </property>
- <!--指定可以在任何IP访问-->
+    
     <property>
-        <name>hadoop.proxyuser.root.hosts</name>
-        <value>*</value>
+      <name>fs.s3a.fast.upload.buffer</name>
+      <value>disk</value>
     </property>
- <!--指定所有用户可以访问-->
+    
     <property>
-        <name>hadoop.proxyuser.root.groups</name>
-        <value>*</value>
+      <name>fs.s3a.multipart.size</name>
+      <value>67108864</value>
     </property>
-<!-- 指定zookeeper地址，数量必须是奇数个，且不能少于3个节点 -->
+    
     <property>
-        <name>ha.zookeeper.quorum</name>
-        <value>master01:2181,master02:2181,slave01:2181,slave02:2181,slave03:2181</value>
+      <name>fs.s3a.user.agent.prefix</name>
+      <value>User-Agent: APN/1.0 Hortonworks/1.0 HDP/2.6.5.0-292</value>
     </property>
+    
     <property>
-        <name>fs.trash.checkpoint.interval</name>
-	<value>0</value>
-	<description>Number of minutes between trash checkpoints.
-	Should be smaller or equal to fs.trash.interval. If zero,
-	the value is set to the value of fs.trash.interval.
-	Every time the checkpointer runs it creates a new checkpoint 
-	out of current and removes checkpoints created more than 
-	fs.trash.interval minutes ago.
-	</description>
+      <name>fs.trash.interval</name>
+      <value>360</value>
     </property>
-<!-- 垃圾箱文件清除时间 单位是分钟-->
+    
     <property>
-	<name>fs.trash.interval</name>
-	<value>60</value>
-	<description>Number of minutes after which the checkpoint
-	gets deleted.  If zero, the trash feature is disabled.
-	This option may be configured both on the server and the
-	client. If trash is disabled server side then the client
-	side configuration is checked. If trash is enabled on the
-	server side then the value configured on the server is
-	used and the client configuration value is ignored.
-	</description>
-   </property>
-<!--  
-<property>
-    <name>io.compression.codecs</name>
-    <value>org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,com.hadoop.compression.lzo.LzoCodec,com.hadoop.compression.lzo.LzopCodec,org.apache.hadoop.io.compress.BZip2Codec</value>
-  </property>
-  <property>
-    <name>io.compression.codec.lzo.class</name>
-    <value>com.hadoop.compression.lzo.LzoCodec</value>
-  </property>
--->
-  <property>
-    <name>hadoop.proxyuser.root.hosts</name>
-    <value>*</value>
-  </property>
-  <property>
-    <name>hadoop.proxyuser.root.groups</name>
-    <value>*</value>
-  </property>
-
-  <property>
-    <name>hadoop.proxyuser.hue.hosts</name>
-    <value>*</value>
-  </property>
-  <property>
-    <name>hadoop.proxyuser.hue.groups</name>
-    <value>*</value>
-  </property>
-
-
-</configuration>
+      <name>ha.failover-controller.active-standby-elector.zk.op.retries</name>
+      <value>120</value>
+    </property>
+    
+    <property>
+      <name>hadoop.custom-extensions.root</name>
+      <value>/hdp/ext/2.6/hadoop</value>
+    </property>
+    
+    <property>
+      <name>hadoop.http.authentication.simple.anonymous.allowed</name>
+      <value>true</value>
+    </property>
+    
+    <property>
+      <name>hadoop.proxyuser.hcat.groups</name>
+      <value>*</value>
+    </property>
+    
+    <property>
+      <name>hadoop.proxyuser.hcat.hosts</name>
+      <value>hdp2-pre1.leadswarp.com</value>
+    </property>
+    
+    <property>
+      <name>hadoop.proxyuser.hdfs.groups</name>
+      <value>*</value>
+    </property>
+    
+    <property>
+      <name>hadoop.proxyuser.hdfs.hosts</name>
+      <value>*</value>
+    </property>
+    
+    <property>
+      <name>hadoop.proxyuser.hive.groups</name>
+      <value>*</value>
+    </property>
+    
+    <property>
+      <name>hadoop.proxyuser.hive.hosts</name>
+      <value>hdp2-pre1.leadswarp.com</value>
+    </property>
+    
+    <property>
+      <name>hadoop.proxyuser.root.groups</name>
+      <value>*</value>
+    </property>
+    
+    <property>
+      <name>hadoop.proxyuser.root.hosts</name>
+      <value>hdp3-pre1.leadswarp.com</value>
+    </property>
+    
+    <property>
+      <name>hadoop.security.auth_to_local</name>
+      <value>DEFAULT</value>
+    </property>
+    
+    <property>
+      <name>hadoop.security.authentication</name>
+      <value>simple</value>
+    </property>
+    
+    <property>
+      <name>hadoop.security.authorization</name>
+      <value>false</value>
+    </property>
+    
+    <property>
+      <name>io.compression.codecs</name>
+      <value>org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.SnappyCodec</value>
+    </property>
+    
+    <property>
+      <name>io.file.buffer.size</name>
+      <value>131072</value>
+    </property>
+    
+    <property>
+      <name>io.serializations</name>
+      <value>org.apache.hadoop.io.serializer.WritableSerialization</value>
+    </property>
+    
+    <property>
+      <name>ipc.client.connect.max.retries</name>
+      <value>50</value>
+    </property>
+    
+    <property>
+      <name>ipc.client.connection.maxidletime</name>
+      <value>30000</value>
+    </property>
+    
+    <property>
+      <name>ipc.client.idlethreshold</name>
+      <value>8000</value>
+    </property>
+    
+    <property>
+      <name>ipc.server.tcpnodelay</name>
+      <value>true</value>
+    </property>
+    
+    <property>
+      <name>mapreduce.jobtracker.webinterface.trusted</name>
+      <value>false</value>
+    </property>
+    
+    <property>
+      <name>net.topology.script.file.name</name>
+      <value>/etc/hadoop/conf/topology_script.py</value>
+    </property>
+    
+  </configuration>
