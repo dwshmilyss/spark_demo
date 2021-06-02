@@ -1,10 +1,12 @@
 package com.yiban.spark.streaming.dev.kafka8.demo1
 
+import com.yiban.spark.streaming.dev.kafka8.demo1.KafkaCluster.LeaderOffset
 import kafka.common.TopicAndPartition
 import kafka.message.MessageAndMetadata
 import kafka.serializer.StringDecoder
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.dstream.InputDStream
+import org.apache.spark.streaming.kafka.KafkaCluster.Err
 import org.apache.spark.streaming.kafka.{HasOffsetRanges, KafkaUtils}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{SparkContext, SparkException}
@@ -42,7 +44,7 @@ object KafkaByZk1 {
 
   def createDirectStream(kafkaCluster: KafkaCluster, topics: Set[String], groupId: String):InputDStream[(String,String)] = {
     val sc = new SparkContext()
-    val ssc = new StreamingContext(sc, Seconds(conf.getInt("application.sparkbatchinterval")))
+    val ssc = new StreamingContext(sc, Seconds(10))
     val messages = {
       setOrUpdateOffsets(kafkaCluster,topics,groupId)
       val kafkaPartitionsE: Either[Err, Set[TopicAndPartition]] = kafkaCluster.getPartitions(topics)
