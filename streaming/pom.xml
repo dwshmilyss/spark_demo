@@ -33,7 +33,7 @@
         <!--hadoop-->
         <hadoop.version>2.6.0</hadoop.version>
         <!--http client必需要兼容CDH中的hadoop版本（cd /opt/cloudera/parcels/CDH/lib/hadoop/lib）-->
-        <httpclient.version>4.2.5</httpclient.version>
+        <httpclient.version>4.5.13</httpclient.version>
 
         <!--http copre-->
         <httpcore.version>4.2.5</httpcore.version>
