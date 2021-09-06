@@ -19,8 +19,6 @@ object SparkSqlJoinDemo {
 
   def main(args: Array[String]): Unit = {
 
-    System.setProperty("hadoop.home.dir", "G:\\soft\\hadoop-2.8.2\\hadoop-2.8.2")
-
     val spark = SparkSession.builder().appName("SparkSqlJoinDemo").master("local[*]").getOrCreate()
 
     import spark.implicits._
@@ -52,15 +50,17 @@ object SparkSqlJoinDemo {
       ("2","f")
     ).toDF("aid","aname")
 
+    df2.select("id").show()
+
     //重新分区
 //    df2.repartition()
 
     //join
-    val res = df1.join(df2,$"id" === $"aid")
-
-    res.explain()
-
-    res.show()
+//    val res = df1.join(df2,$"id" === $"aid")
+//
+//    res.explain()
+//
+//    res.show()
 
     //释放资源
     spark.stop()

@@ -14,7 +14,7 @@ object StreamingBySocket {
 
   def main(args: Array[String]) {
     val conf = new SparkConf().setAppName("SparkTest").setMaster("local[*]")
-    val ssc = new StreamingContext(conf,Seconds(5))
+    val ssc = new StreamingContext(conf,Seconds(30))
     //    val lines = sc.textFile("file:///d:/aaa.txt")
     //    val lines = sc.textFile(args(0)) // "hdfs://master01:9000/a.txt"
     //    // 对每一行数据执行Split操作

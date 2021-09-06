@@ -7,147 +7,298 @@
     <groupId>com.yiban.spark</groupId>
     <artifactId>spark_demo</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>spark_demo</name>
+
+    <modules>
+        <module>streaming</module>
+        <module>sql</module>
+        <module>core</module>
+        <module>graph</module>
+        <module>hbase</module>
+        <module>hive</module>
+        <module>livy</module>
+        <module>ml</module>
+        <module>rpc</module>
+        <module>structured</module>
+    </modules>
 
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <!--add  maven release -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <encoding>UTF-8</encoding>
-        <!--scala版本-->
-        <scala.version>2.11.8</scala.version>
-        <!--测试机器上的scala版本-->
-        <test.scala.version>2.11.8</test.scala.version>
-
+        <scala.version>2.11.12</scala.version>
+        <scala.binary.version>2.11</scala.binary.version>
+        <test.scala.version>2.11.12</test.scala.version>
         <jackson.version>2.6.5</jackson.version>
-        <!--slf4j版本-->
-        <slf4j-version>1.7.20</slf4j-version>
-        <!--spark-->
-        <spark.version>2.2.0</spark.version>
-        <kafka.spark.version>2.2.0</kafka.spark.version>
-        <avro.spark.version>4.0.0</avro.spark.version>
-        <!--hadoop-->
-        <hadoop.version>2.6.0</hadoop.version>
+        <spark.version>2.4.7</spark.version>
+        <kafka.spark.version>2.4.7</kafka.spark.version>
+        <hadoop.version>2.7.3</hadoop.version>
+        <hbase.version>1.2.5</hbase.version>
         <!--http client必需要兼容CDH中的hadoop版本（cd /opt/cloudera/parcels/CDH/lib/hadoop/lib）-->
-        <httpclient.version>4.2.5</httpclient.version>
-
-        <!--http copre-->
-        <httpcore.version>4.2.5</httpcore.version>
-        <!--fastjson-->
+        <httpcomponents.version>4.2.5</httpcomponents.version>
         <fastjson.version>1.1.39</fastjson.version>
+        <kafka.version>0.10.2.0</kafka.version>
+        <avro.version>1.8.2</avro.version>
+        <avro.spark.version>4.0.0</avro.spark.version>
+        <jupiter.version>5.7.0-M1</jupiter.version>
+        <hbase.version>1.2.1</hbase.version>
+        <jedis.version>2.9.0</jedis.version>
+        <slf4j.version>1.7.21</slf4j.version>
+        <log4j.version>1.2.17</log4j.version>
+        <commons.version>2.8.0</commons.version>
+        <commons.pool.version>1.6</commons.pool.version>
+        <hive.version>1.2.1</hive.version>
+        <httpclient.version>4.2.5</httpclient.version>
+        <httpcore.version>4.2.5</httpcore.version>
+        <mysql.connector.version>5.1.48</mysql.connector.version>
+        <lombok.version>1.18.20</lombok.version>
+        <log4j.slf4j.version>2.11.0</log4j.slf4j.version>
     </properties>
 
-    <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.hadoop</groupId>-->
-<!--            <artifactId>hadoop-common</artifactId>-->
-<!--            <version>${hadoop.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.hadoop</groupId>-->
-<!--            <artifactId>hadoop-hdfs</artifactId>-->
-<!--            <version>${hadoop.version}</version>-->
-<!--        </dependency>-->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.apache.spark</groupId>-->
-<!--            <artifactId>spark-core_2.11</artifactId>-->
-<!--            <version>${spark.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.spark</groupId>-->
-<!--            <artifactId>spark-sql_2.11</artifactId>-->
-<!--            <version>${spark.version}</version>-->
-<!--        </dependency>-->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <!-- lombok的@Log4j2需要依赖这个包-->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j.slf4j.version}</version>
+            </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.apache.spark</groupId>-->
-<!--            <artifactId>spark-hive_2.11</artifactId>-->
-<!--            <version>${spark.version}</version>-->
-<!--        </dependency>-->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.connector.version}</version>
+            </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.apache.spark</groupId>-->
-<!--            <artifactId>spark-mllib_2.11</artifactId>-->
-<!--            <version>${spark.version}</version>-->
-<!--        </dependency>-->
+            <!-- hadoop -->
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-common</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-client</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-hdfs</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-auth</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-mapreduce-client-core</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+            <!-- hbase -->
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-server</artifactId>
+                <version>${hbase.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-client</artifactId>
+                <version>${hbase.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-common</artifactId>
+                <version>${hbase.version}</version>
+            </dependency>
 
-        <dependency>
-            <groupId>com.databricks</groupId>
-            <artifactId>spark-avro_2.11</artifactId>
-            <version>${avro.spark.version}</version>
-        </dependency>
+            <!-- spark -->
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-core_${scala.binary.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-sql_${scala.binary.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
 
-        <dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro</artifactId>
-            <version>1.8.2</version>
-        </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-hive_${scala.binary.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
 
-        <!-- junit start -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13</version>
-        </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-mllib_${scala.binary.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-graphx_${scala.binary.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
 
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.7.0-M1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.7.0-M1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
-            <version>5.7.0-M1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>3.3.3</version>
-        </dependency>
-        <!-- junit end -->
-
-    </dependencies>
-
-
-    <build>
-        <plugins>
-            <plugin>
+            <dependency>
                 <groupId>org.apache.avro</groupId>
-                <artifactId>avro-maven-plugin</artifactId>
-                <version>1.8.2</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>schema</goal>
-                        </goals>
-                        <configuration>
-                            <sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
-                            <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+                <artifactId>avro</artifactId>
+                <version>${avro.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.databricks</groupId>
+                <artifactId>spark-avro_2.11</artifactId>
+                <version>${avro.spark.version}</version>
+            </dependency>
+            <!-- junit start -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${jupiter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${jupiter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${jupiter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>3.3.3</version>
+            </dependency>
+            <!-- junit end -->
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>${jedis.version}</version>
+            </dependency>
+
+            <!--fastjson-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+            <!--httpclient-->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpcomponents.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>${httpcomponents.version}</version>
+            </dependency>
+
+            <!--spark kafka-->
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-streaming-kafka-0-8_2.11</artifactId>
+                <version>${kafka.spark.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-streaming-kafka-0-10_2.11</artifactId>
+                <version>${kafka.spark.version}</version>
+            </dependency>
+            <!-- spark dependency end -->
+
+            <!-- log dependency begin-->
+            <!--        <dependency>-->
+            <!--            <groupId>org.slf4j</groupId>-->
+            <!--            <artifactId>slf4j-api</artifactId>-->
+            <!--            <version>${slf4j.version}</version>-->
+            <!--        </dependency>-->
+            <!--        <dependency>-->
+            <!--            <groupId>org.slf4j</groupId>-->
+            <!--            <artifactId>slf4j-log4j12</artifactId>-->
+            <!--            <version>${slf4j.version}</version>-->
+            <!--        </dependency>-->
+            <!--        <dependency>-->
+            <!--            <groupId>org.slf4j</groupId>-->
+            <!--            <artifactId>slf4j-nop</artifactId>-->
+            <!--            <version>1.7.6</version>-->
+            <!--        </dependency>-->
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+            <!-- common -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-pool</groupId>
+                <artifactId>commons-pool</artifactId>
+                <version>${commons.pool.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka_2.11</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hive</groupId>
+                <artifactId>hive-jdbc</artifactId>
+                <version>${hive.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hive</groupId>
+                <artifactId>hive-exec</artifactId>
+                <version>${hive.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
 </project>
