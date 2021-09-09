@@ -44,7 +44,10 @@
         <kafka.version>0.10.2.0</kafka.version>
         <avro.version>1.8.2</avro.version>
         <avro.spark.version>4.0.0</avro.spark.version>
-        <jupiter.version>5.7.0-M1</jupiter.version>
+        <junit.jupiter.version>5.7.0-M1</junit.jupiter.version>
+        <junit.vintage.version>5.7.0-M1</junit.vintage.version>
+        <junit.platform.version>1.7.0-M1</junit.platform.version>
+        <mockito.jupiter.version>3.3.3</mockito.jupiter.version>
         <hbase.version>1.2.1</hbase.version>
         <jedis.version>2.9.0</jedis.version>
         <slf4j.version>1.7.21</slf4j.version>
@@ -57,6 +60,8 @@
         <mysql.connector.version>5.1.48</mysql.connector.version>
         <lombok.version>1.18.20</lombok.version>
         <log4j.slf4j.version>2.11.0</log4j.slf4j.version>
+        <hudi.version>0.8.0-NAZA-2</hudi.version>
+        <presto.version>0.244</presto.version>
     </properties>
 
     <dependencyManagement>
@@ -161,6 +166,11 @@
                 <artifactId>spark-graphx_${scala.binary.version}</artifactId>
                 <version>${spark.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-avro_${scala.binary.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.avro</groupId>
@@ -170,34 +180,61 @@
 
             <dependency>
                 <groupId>com.databricks</groupId>
-                <artifactId>spark-avro_2.11</artifactId>
+                <artifactId>spark-avro_${scala.binary.version}</artifactId>
                 <version>${avro.spark.version}</version>
             </dependency>
+
             <!-- junit start -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>${jupiter.version}</version>
+                <version>${junit.jupiter.version}</version>
+                <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>${jupiter.version}</version>
+                <version>${junit.jupiter.version}</version>
+                <scope>test</scope>
             </dependency>
-
+            <dependency>
+                <groupId>org.junit.vintage</groupId>
+                <artifactId>junit-vintage-engine</artifactId>
+                <version>${junit.vintage.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-params</artifactId>
-                <version>${jupiter.version}</version>
+                <version>${junit.jupiter.version}</version>
+                <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>3.3.3</version>
+                <scope>test</scope>
+                <version>${mockito.jupiter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-runner</artifactId>
+                <version>${junit.platform.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-suite-api</artifactId>
+                <version>${junit.platform.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-commons</artifactId>
+                <version>${junit.platform.version}</version>
+                <scope>test</scope>
             </dependency>
             <!-- junit end -->
+
             <dependency>
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
@@ -236,22 +273,7 @@
             </dependency>
             <!-- spark dependency end -->
 
-            <!-- log dependency begin-->
-            <!--        <dependency>-->
-            <!--            <groupId>org.slf4j</groupId>-->
-            <!--            <artifactId>slf4j-api</artifactId>-->
-            <!--            <version>${slf4j.version}</version>-->
-            <!--        </dependency>-->
-            <!--        <dependency>-->
-            <!--            <groupId>org.slf4j</groupId>-->
-            <!--            <artifactId>slf4j-log4j12</artifactId>-->
-            <!--            <version>${slf4j.version}</version>-->
-            <!--        </dependency>-->
-            <!--        <dependency>-->
-            <!--            <groupId>org.slf4j</groupId>-->
-            <!--            <artifactId>slf4j-nop</artifactId>-->
-            <!--            <version>1.7.6</version>-->
-            <!--        </dependency>-->
+
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
@@ -288,6 +310,7 @@
                 <version>${kafka.version}</version>
             </dependency>
 
+            <!--hive deps-->
             <dependency>
                 <groupId>org.apache.hive</groupId>
                 <artifactId>hive-jdbc</artifactId>
@@ -297,6 +320,23 @@
                 <groupId>org.apache.hive</groupId>
                 <artifactId>hive-exec</artifactId>
                 <version>${hive.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hive</groupId>
+                <artifactId>hive-common</artifactId>
+                <version>${hive.version}</version>
+            </dependency>
+
+            <!--hudi deps-->
+            <dependency>
+                <groupId>org.apache.hudi</groupId>
+                <artifactId>hudi-spark-bundle_${scala.binary.version}</artifactId>
+                <version>${hudi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hudi</groupId>
+                <artifactId>hudi-hadoop-mr-bundle</artifactId>
+                <version>${hudi.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

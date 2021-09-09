@@ -18,6 +18,9 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <scala.binary.version>2.11</scala.binary.version>
+        <!--        <spark.version>2.4.4</spark.version>-->
+        <ignite.version>2.9.1</ignite.version>
     </properties>
 
     <dependencies>
@@ -30,93 +33,29 @@
             <artifactId>spark-sql_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-core</artifactId>
+            <version>${ignite.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-hive_${scala.binary.version}</artifactId>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-spring</artifactId>
+            <version>${ignite.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.hudi</groupId>
-            <artifactId>hudi-spark3-bundle_${scala.binary.version}</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-spark-2.4</artifactId>
+            <version>${ignite.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-jdbc</artifactId>
-            <version>2.3.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.1.1</version>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-indexing</artifactId>
+            <version>${ignite.version}</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- check the duplicate java class -->
-            <plugin>
-                <groupId>com.ning.maven.plugins</groupId>
-                <artifactId>maven-duplicate-finder-plugin</artifactId>
-                <version>1.0.5</version>
-                <configuration>
-                    <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- validate inflict jar-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0-M1</version>
-                <executions>
-                    <execution>
-                        <id>enforce</id>
-                        <configuration>
-                            <rules>
-                                <DependencyConvergence />
-                            </rules>
-                        </configuration>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- compile scala code -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -144,7 +83,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- package project and merge resources.service -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

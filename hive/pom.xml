@@ -14,7 +14,28 @@
     <artifactId>hive</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <repositories>
+        <repository>
+            <id>linkflow-repos</id>
+            <name>linkflow-repos</name>
+            <url>https://repo.nazaio.com/repository/maven-public</url>
+        </repository>
+    </repositories>
+
     <dependencies>
+        <dependency>
+            <groupId>org.apache.hudi</groupId>
+            <artifactId>hudi-spark-bundle_${scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hudi</groupId>
+            <artifactId>hudi-hadoop-mr-bundle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.facebook.presto</groupId>
+            <artifactId>presto-jdbc</artifactId>
+            <version>${presto.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
@@ -32,17 +53,17 @@
         <!-- spark dependency begin -->
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.11</artifactId>
+            <artifactId>spark-core_${scala.binary.version}</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.11</artifactId>
+            <artifactId>spark-sql_${scala.binary.version}</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-hive_2.11</artifactId>
+            <artifactId>spark-hive_${scala.binary.version}</artifactId>
         </dependency>
 
         <dependency>
@@ -53,16 +74,20 @@
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-exec</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-common</artifactId>
+        </dependency>
 
         <!-- spark-sql-perf needs jars -->
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
-            <artifactId>scala-logging-slf4j_2.11</artifactId>
+            <artifactId>scala-logging-slf4j_${scala.binary.version}</artifactId>
             <version>2.1.2</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.scala-logging</groupId>
-            <artifactId>scala-logging-api_2.11</artifactId>
+            <artifactId>scala-logging-api_${scala.binary.version}</artifactId>
             <version>2.1.2</version>
         </dependency>
         <!-- spark-sql-perf needs jars -->
@@ -79,6 +104,33 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+
+        <!--test deps-->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
