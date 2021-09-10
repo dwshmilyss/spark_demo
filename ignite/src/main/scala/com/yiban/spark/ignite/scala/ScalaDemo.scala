@@ -42,7 +42,7 @@ object ScalaDemo {
       .master("local[2]")
       .config("spark.executor.instances", "1")
       .getOrCreate()
-    //        val cfgPath: String = ScalaDemo.getClass.getClassLoader.getResource("local.xml").getPath
+    //        val cfgPath: String = ScalaDemo.getClass.getClassLoader.getResource("local-config.xml").getPath
     //        println(s"cfgPath = $cfgPath")
     //
     //        val df = spark.read
@@ -52,7 +52,7 @@ object ScalaDemo {
     //          .load()
 
     //        val hdfsPath = "hdfs://localhost:9000/local.xml"
-    val hdfsPath = "/Users/edz/sourceCode/spark_demo/ignite/src/main/resources/local.xml"
+    val hdfsPath = "/Users/edz/sourceCode/spark_demo/ignite/src/main/resources/local-config.xml"
 //        val hdfsPath = "/Users/edz/apps/apache-ignite-2.9.1-bin/config/default-config.xml"
     val df = spark.read
       .format(FORMAT_IGNITE)
@@ -76,7 +76,7 @@ object ScalaDemo {
       .config("spark.executor.instances", "1")
       .getOrCreate()
 
-    val hdfsPath = "/Users/edz/sourceCode/spark_demo/ignite/src/main/resources/local.xml"
+    val hdfsPath = "/Users/edz/sourceCode/spark_demo/ignite/src/main/resources/local-config.xml"
     val rdd = spark.sparkContext.makeRDD(List(Person3(1,"aa"),Person3(2,"bb")))
     val df = spark.createDataFrame(rdd)
     df.write.format("ignite").option("config",hdfsPath).option("table","person4").option("streamerAllowOverwrite","true").option("primaryKeyFields","id").mode(SaveMode.Overwrite).save()

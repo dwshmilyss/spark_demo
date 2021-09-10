@@ -25,7 +25,7 @@ object Test {
 
   @Test
   def test() = {
-    val cfgPath: String = Test.getClass.getClassLoader.getResource("local.xml").getPath
+    val cfgPath: String = Test.getClass.getClassLoader.getResource("local-config.xml").getPath
     println(cfgPath)
 
     val df = spark.read
