@@ -1,15 +1,11 @@
 package com.yiban.spark.ignite.scala
 
 
-import org.apache.hadoop.fs.FsUrlStreamHandlerFactory
 import org.apache.ignite.configuration.IgniteConfiguration
 import org.apache.ignite.spark.IgniteContext
 import org.apache.ignite.spark.IgniteDataFrameSettings.{FORMAT_IGNITE, OPTION_CONFIG_FILE, OPTION_TABLE}
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.junit.jupiter.api.{AfterEach, BeforeEach, Test}
-import org.springframework.util.StopWatch
-
-import java.net.URL
 
 class IgniteTest {
   var spark: SparkSession = _
@@ -40,50 +36,37 @@ class IgniteTest {
   }
 
   @Test
-  def testAPI() = {
-//    val cfgPath: String = new IgniteTest().getClass.getClassLoader.getResource("weijiqun-config-2.xml").getPath
-    URL.setURLStreamHandlerFactory(new FsUrlStreamHandlerFactory())
-    val cfgPath: String = "hdfs://localhost:9000/weijiqun-config-2.xml"
+  def test() = {
+    val cfgPath: String = new IgniteTest().getClass.getClassLoader.getResource("local-config.xml").getPath
     println(cfgPath)
 
     val df = spark.read
       .format(FORMAT_IGNITE) // Data source type.
-      .option(OPTION_TABLE, "identity_test") // Table to read.
+      .option(OPTION_TABLE, "person") // Table to read.
       .option(OPTION_CONFIG_FILE, cfgPath) // Ignite config.
       .load()
 
-    df.createOrReplaceTempView("identity_test")
-      val stopWatch:StopWatch = new StopWatch()
-      stopWatch.start()
-//    val igniteDF = spark.sql("select * from identity_test  where id = '1'")
-    val igniteDF = spark.sql("select * from identity_test order by contact_id desc limit 1")
-    igniteDF.explain(true)
-    println(igniteDF.queryExecution.executedPlan)
+    df.createOrReplaceTempView("person")
+
+    val igniteDF = spark.sql("select * from person where id=3")
     igniteDF.show()
-    stopWatch.stop()
-    println(stopWatch.getTotalTimeMillis)//25105 ,17668
   }
 
   @Test
   def testJDBC() = {
     val df = spark.read
       .format("jdbc")
-      .option("url", "jdbc:ignite:thin://localhost")
+      .option("url", "jdbc:ignite:thin://10.106.1.16")
       .option("fetchsize", 100)
       //.option("driver", "org.apache.ignite.IgniteJdbcDriver")
-      .option("dbtable", "identity_test").load()
+      .option("dbtable", "person").load()
 
     df.printSchema()
 
-    df.createOrReplaceTempView("identity_test")
+    df.createOrReplaceTempView("person")
 
-    val stopWatch:StopWatch = new StopWatch()
-    stopWatch.start()
-    //    val igniteDF = spark.sql("select * from identity_test  where id = '1'")
-    val igniteDF = spark.sql("select * from identity_test order by contact_id desc limit 1")
+    val igniteDF = spark.sql("select * from person where id=3")
     igniteDF.show()
-    stopWatch.stop()
-    println(stopWatch.getTotalTimeMillis)//31083
   }
 
   @Test

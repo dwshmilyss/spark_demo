@@ -47,6 +47,7 @@
         <junit.jupiter.version>5.7.0-M1</junit.jupiter.version>
         <junit.vintage.version>5.7.0-M1</junit.vintage.version>
         <junit.platform.version>1.7.0-M1</junit.platform.version>
+        <junit.version>4.13.2</junit.version>
         <mockito.jupiter.version>3.3.3</mockito.jupiter.version>
         <hbase.version>1.2.1</hbase.version>
         <jedis.version>2.9.0</jedis.version>
@@ -60,12 +61,19 @@
         <mysql.connector.version>5.1.48</mysql.connector.version>
         <lombok.version>1.18.20</lombok.version>
         <log4j.slf4j.version>2.11.0</log4j.slf4j.version>
-        <hudi.version>0.8.0-NAZA-2</hudi.version>
+        <hudi.version>0.8.0-NAZA-3</hudi.version>
         <presto.version>0.244</presto.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
