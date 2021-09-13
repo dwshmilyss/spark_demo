@@ -22,7 +22,7 @@ object ScalaDemo {
 
     val df = spark.read
       .format("jdbc")
-      .option("url", "jdbc:ignite:thin://10.106.1.16")
+      .option("url", "jdbc:ignite:thin://localhost")
       .option("fetchsize", 100)
       //.option("driver", "org.apache.ignite.IgniteJdbcDriver")
       .option("dbtable", "person")
@@ -53,19 +53,18 @@ object ScalaDemo {
 
     //        val hdfsPath = "hdfs://localhost:9000/local.xml"
     val hdfsPath = "/Users/edz/sourceCode/spark_demo/ignite/src/main/resources/local-config.xml"
-//        val hdfsPath = "/Users/edz/apps/apache-ignite-2.9.1-bin/config/default-config.xml"
     val df = spark.read
       .format(FORMAT_IGNITE)
-      .option(OPTION_TABLE, "person")
+      .option(OPTION_TABLE, "emp1")
       .option(OPTION_SCHEMA, "public")
       .option(OPTION_CONFIG_FILE, hdfsPath)
       .load()
     df.printSchema()
-//    df.show()
-    df.createOrReplaceTempView("person")
-
-    val igniteDF = spark.sql("select * from person where id=3")
-    igniteDF.show()
+    df.show()
+//    df.createOrReplaceTempView("emp")
+//
+//    val igniteDF = spark.sql("select * from emp")
+//    igniteDF.show()
     spark.stop()
   }
 

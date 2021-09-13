@@ -76,7 +76,7 @@ Ignite自己本身有发现机制，只需要配置静态IP即可相互发现；
                     <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">
                         <property name="addresses">
                             <list>
-                                <value>10.106.1.16:47500..47510</value>
+                                <value>localhost:47500..47510</value>
                             </list>
                         </property>
                     </bean>
