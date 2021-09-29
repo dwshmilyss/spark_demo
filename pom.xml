@@ -33,7 +33,7 @@
         <scala.version>2.11.12</scala.version>
         <scala.binary.version>2.11</scala.binary.version>
         <test.scala.version>2.11.12</test.scala.version>
-        <jackson.version>2.6.5</jackson.version>
+        <jackson.version>2.10.0</jackson.version>
         <spark.version>2.4.7</spark.version>
         <kafka.spark.version>2.4.7</kafka.spark.version>
         <hadoop.version>2.7.3</hadoop.version>
@@ -49,7 +49,6 @@
         <junit.platform.version>1.7.0-M1</junit.platform.version>
         <junit.version>4.13.2</junit.version>
         <mockito.jupiter.version>3.3.3</mockito.jupiter.version>
-        <hbase.version>1.2.1</hbase.version>
         <jedis.version>2.9.0</jedis.version>
         <slf4j.version>1.7.21</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
@@ -61,7 +60,8 @@
         <mysql.connector.version>5.1.48</mysql.connector.version>
         <lombok.version>1.18.20</lombok.version>
         <log4j.slf4j.version>2.11.0</log4j.slf4j.version>
-        <hudi.version>0.8.0-NAZA-3</hudi.version>
+<!--        <hudi.version>0.8.0-NAZA-3</hudi.version>-->
+        <hudi.version>0.9.0</hudi.version>
         <presto.version>0.244</presto.version>
     </properties>
 
