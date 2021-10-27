@@ -12,6 +12,26 @@
     </property>
     
     <property>
+      <name>fs.s3a.fast.upload</name>
+      <value>true</value>
+    </property>
+    
+    <property>
+      <name>fs.s3a.fast.upload.buffer</name>
+      <value>disk</value>
+    </property>
+    
+    <property>
+      <name>fs.s3a.multipart.size</name>
+      <value>67108864</value>
+    </property>
+    
+    <property>
+      <name>fs.s3a.user.agent.prefix</name>
+      <value>User-Agent: APN/1.0 Hortonworks/1.0 HDP/2.6.5.0-292</value>
+    </property>
+    
+    <property>
       <name>fs.trash.interval</name>
       <value>360</value>
     </property>

@@ -1,14 +1,17 @@
 package com.yiban.spark.sql.test
 
-import org.apache.spark.sql.SparkSession
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions.col
+import org.apache.spark.sql.{Encoder, Encoders, SaveMode, SparkSession}
 import org.junit.jupiter.api.{AfterEach, BeforeEach, Test}
+
 import java.io.File
 
 class HiveTest {
   val warehouseLocation = new File("spark-warehouse").getAbsolutePath
   println(s"warehouseLocation = $warehouseLocation")
+
+  case class Person(id:Int,name:String,age:Int,sex:String)
 
   var spark: SparkSession = _
 
@@ -21,25 +24,98 @@ class HiveTest {
       .master("local[2]")
       //        .config("spark.sql.warehouse.dir", s"hdfs://hdp1-test.leadswarp.com:8020/apps/hive/warehouse")
       .config("spark.sql.warehouse.dir", "hdfs://localhost:9000/user/hive/warehouse")
-      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .config("spark.sql.extensions", "org.apache.spark.sql.hudi.HoodieSparkSessionExtension")
+      .config("hive.support.concurrency","true")
+      .config("hive.txn.manager","org.apache.hadoop.hive.ql.lockmgr.DbTxnManager")
+      .config("hive.enforce.bucketing","true")
+      .config("hive.exec.dynamic.partition.mode","nostrict")
+      .config("hive.compactor.initiator.on","true")
+      .config("hive.compactor.worker.threads","1")
       .enableHiveSupport()
       .getOrCreate()
   }
 
   @Test
-  def select(): Unit = {
+  def test():Unit = {
+  }
+
+  @Test
+  def selectWithSql(): Unit = {
     spark.sql("select * from hive_table").show()
   }
 
   @Test
-  def createHiveTable(): Unit = {
+  def createTableWithSql(): Unit = {
     spark.sql("create table hive_table(id int,name string)")
   }
 
   @Test
-  def insert(): Unit = {
+  def insertWithSql(): Unit = {
     spark.sql("insert into hive_table values (1,'aa'),(2,'bb'),(3,'bb');")
+    spark.sql("select * from hive_table").show()
+  }
+
+  @Test
+  def createTableWithAPI():Unit = {
+    val personDF = spark.createDataFrame(Seq(Person(1,"aa",18,"male"),Person(2,"bb",20,"female"),Person(3,"cc",21,"female")))
+    personDF.write.format("hive")
+      .mode(SaveMode.Overwrite)
+      //这里可以不指定path，如果不指定，则会存储在hive默认的warehouse下
+//      .option("path","hdfs://localhost:9000/user/hive/warehouse/hive_person")
+      .saveAsTable("person1")
+  }
+
+
+  @Test
+  def createOrcTableWithAPI():Unit = {
+    val personDF = spark.createDataFrame(Seq(Person(1,"aa",18,"male"),Person(2,"bb",20,"female"),Person(3,"cc",21,"female")))
+    personDF.write.format("orc")
+      .partitionBy("sex")
+      .bucketBy(8,"age")
+      .mode(SaveMode.Overwrite)
+//      .option("transactional","true")
+      //这里可以不指定path，如果不指定，则会存储在hive默认的warehouse下
+      //      .option("path","hdfs://localhost:9000/user/hive/warehouse/hive_person")
+      .saveAsTable("person_orc_acid")
+  }
+
+  @Test
+  def createOrcTableWithHQL():Unit = {
+    val personDF = spark.createDataFrame(Seq(Person(1,"aa",18,"male"),Person(2,"bb",20,"female"),Person(3,"cc",21,"female")))
+
+    //如果要创建可以update的orc表，必须用原生的HQL语法
+    //    println(spark.sql("create table person_orc_bucket_v2(id int,name string,age int) partitioned by (sex string) CLUSTERED BY (age) INTO 8 BUCKETS STORED AS ORC TBLPROPERTIES ('transactional'='true');")
+    //      .queryExecution)
+
+    //spark sql不支持创建hive的clustered by bucket
+    println(spark.sql("create table person_orc_bucket_v2(id int,name string,age int,sex string) using hive partitioned by (sex) options(fileFormat 'orc');").queryExecution)
+
+  }
+
+
+  @Test
+  def createOrcTableWithV2API():Unit = {
+    val personDF = spark.createDataFrame(Seq(Person(1,"aa",18,"male"),Person(2,"bb",20,"female"),Person(3,"cc",21,"female")))
+    personDF.writeTo("person_orc_bucket_v2")
+      .partitionedBy(col("sex"))
+      .tableProperty("transactional","true")
+      .create()
+
+  }
+
+  @Test
+  def testRead():Unit = {
+    val personDF = spark.createDataFrame(Seq(Person(1, "aa", 18, "male"), Person(2, "bb", 20, "female"), Person(3, "cc", 21, "female")))
+  }
+
+
+  @Test
+  def InsertOrcTableWithAPI():Unit = {
+    val personDF = spark.createDataFrame(Seq(Person(4,"aa",18,"male"),Person(5,"bb",20,"female"),Person(6,"cc",21,"female")))
+    personDF.write.format("orc")
+      .mode(SaveMode.Append)
+      //这里可以不指定path，如果不指定，则会存储在hive默认的warehouse下
+      //      .option("path","hdfs://localhost:9000/user/hive/warehouse/hive_person")
+      .insertInto("person_orc_bucket")
   }
 
   @AfterEach

@@ -16,11 +16,11 @@
         <module>core</module>
         <module>graph</module>
         <module>hbase</module>
-        <module>hive</module>
         <module>livy</module>
         <module>ml</module>
         <module>rpc</module>
         <module>structured</module>
+        <module>hudi</module>
     </modules>
 
 
@@ -30,13 +30,12 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <encoding>UTF-8</encoding>
-        <scala.version>2.11.12</scala.version>
-        <scala.binary.version>2.11</scala.binary.version>
-        <test.scala.version>2.11.12</test.scala.version>
-        <jackson.version>2.10.0</jackson.version>
-        <spark.version>2.4.7</spark.version>
-        <kafka.spark.version>2.4.7</kafka.spark.version>
-        <hadoop.version>2.7.3</hadoop.version>
+        <scala.version>2.12.10</scala.version>
+        <scala.binary.version>2.12</scala.binary.version>
+        <test.scala.version>2.12.10</test.scala.version>
+        <spark.version>3.0.3</spark.version>
+        <kafka.spark3.version>3.0.3</kafka.spark3.version>
+        <hadoop.version>2.7.7</hadoop.version>
         <hbase.version>1.2.5</hbase.version>
         <!--http client必需要兼容CDH中的hadoop版本（cd /opt/cloudera/parcels/CDH/lib/hadoop/lib）-->
         <httpcomponents.version>4.2.5</httpcomponents.version>
@@ -54,15 +53,16 @@
         <log4j.version>1.2.17</log4j.version>
         <commons.version>2.8.0</commons.version>
         <commons.pool.version>1.6</commons.pool.version>
-        <hive.version>1.2.1</hive.version>
+        <hive.version>2.3.7</hive.version>
         <httpclient.version>4.2.5</httpclient.version>
         <httpcore.version>4.2.5</httpcore.version>
         <mysql.connector.version>5.1.48</mysql.connector.version>
         <lombok.version>1.18.20</lombok.version>
         <log4j.slf4j.version>2.11.0</log4j.slf4j.version>
-<!--        <hudi.version>0.8.0-NAZA-3</hudi.version>-->
+<!--                <hudi.version>0.8.0</hudi.version>-->
         <hudi.version>0.9.0</hudi.version>
         <presto.version>0.244</presto.version>
+        <iceberg.version>0.12.0</iceberg.version>
     </properties>
 
     <dependencyManagement>
@@ -75,9 +75,9 @@
             </dependency>
 
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <groupId>org.apache.iceberg</groupId>
+                <artifactId>iceberg-spark3-runtime</artifactId>
+                <version>${iceberg.version}</version>
             </dependency>
 
             <dependency>
@@ -113,6 +113,12 @@
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-hdfs</artifactId>
                 <version>${hadoop.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>netty</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
@@ -188,7 +194,7 @@
 
             <dependency>
                 <groupId>com.databricks</groupId>
-                <artifactId>spark-avro_${scala.binary.version}</artifactId>
+                <artifactId>spark-avro_2.11</artifactId>
                 <version>${avro.spark.version}</version>
             </dependency>
 
@@ -270,14 +276,8 @@
             <!--spark kafka-->
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-streaming-kafka-0-8_2.11</artifactId>
-                <version>${kafka.spark.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.spark</groupId>
-                <artifactId>spark-streaming-kafka-0-10_2.11</artifactId>
-                <version>${kafka.spark.version}</version>
+                <artifactId>spark-streaming-kafka-0-10_2.12</artifactId>
+                <version>${kafka.spark3.version}</version>
             </dependency>
             <!-- spark dependency end -->
 
@@ -339,6 +339,11 @@
             <dependency>
                 <groupId>org.apache.hudi</groupId>
                 <artifactId>hudi-spark-bundle_${scala.binary.version}</artifactId>
+                <version>${hudi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hudi</groupId>
+                <artifactId>hudi-spark3-bundle_${scala.binary.version}</artifactId>
                 <version>${hudi.version}</version>
             </dependency>
             <dependency>
