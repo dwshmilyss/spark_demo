@@ -15,7 +15,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <spark.version>2.4.4</spark.version>
+        <spark.version>2.4.7</spark.version>
     </properties>
 
     <dependencies>
@@ -45,6 +45,10 @@
                     <groupId>javax.servlet</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -67,6 +71,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--解决io.netty.buffer.PooledByteBufAllocator.defaultNumHeapArena()I异常，-->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.18.Final</version>
+        </dependency>
+
         <!-- spark dependency begin -->
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -96,6 +107,14 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
         </dependency>
     </dependencies>
 

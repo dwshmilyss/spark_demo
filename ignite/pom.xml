@@ -19,9 +19,9 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <scala.binary.version>2.11</scala.binary.version>
-        <spark.version>2.4.4</spark.version>
-        <ignite.version>2.9.1</ignite.version>
+        <spark.version>2.4.7</spark.version>
+<!--        <ignite.version>2.9.1</ignite.version>-->
+        <ignite.version>2.13.0</ignite.version>
     </properties>
 
     <dependencies>
@@ -73,20 +73,24 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-hive_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-avro_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
         </dependency>
 
 <!--        <dependency>-->
@@ -114,7 +118,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.ignite</groupId>
-            <artifactId>ignite-spark-2.4</artifactId>
+            <artifactId>ignite-spark-2.4_2.12</artifactId>
             <version>${ignite.version}</version>
         </dependency>
         <dependency>
@@ -127,7 +131,11 @@
             <artifactId>ignite-log4j</artifactId>
             <version>${ignite.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-kubernetes</artifactId>
+            <version>${ignite.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

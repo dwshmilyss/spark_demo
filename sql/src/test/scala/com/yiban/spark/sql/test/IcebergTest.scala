@@ -84,7 +84,7 @@ class IcebergTest {
   @Test
   def testInsertAPI():Unit = {
     val personDF = spark.createDataFrame(Seq(Person(1, "aa", 18, "male"), Person(2, "bb", 20, "female"), Person(3, "cc", 21, "female")))
-    personDF.writeTo("spark_catalog.default.person").append()
+//    personDF.writeTo("spark_catalog.default.person").append()
     spark.sql("select * from spark_catalog.default.person;").show()
   }
 

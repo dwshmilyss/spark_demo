@@ -9,7 +9,7 @@ class HudiTest {
   var spark: SparkSession = _
 
   @BeforeEach
-  def init() = {
+  def init():Unit = {
     val logger: Logger = Logger.getLogger("org.apache.spark")
     Logger.getLogger("org").setLevel(Level.ERROR)
     spark = SparkSession.builder()
@@ -44,7 +44,7 @@ class HudiTest {
   }
 
   @AfterEach
-  def stop() = {
+  def stop():Unit = {
     spark.stop()
   }
 }

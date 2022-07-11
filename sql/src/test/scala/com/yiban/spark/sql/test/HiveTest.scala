@@ -11,7 +11,7 @@ class HiveTest {
   val warehouseLocation = new File("spark-warehouse").getAbsolutePath
   println(s"warehouseLocation = $warehouseLocation")
 
-  case class Person(id:Int,name:String,age:Int,sex:String)
+  case class Person(id: Int, name: String, age: Int, sex: String)
 
   var spark: SparkSession = _
 
@@ -22,20 +22,30 @@ class HiveTest {
     spark = SparkSession.builder()
       .appName("HiveTest")
       .master("local[2]")
-      //        .config("spark.sql.warehouse.dir", s"hdfs://hdp1-test.leadswarp.com:8020/apps/hive/warehouse")
-      .config("spark.sql.warehouse.dir", "hdfs://localhost:9000/user/hive/warehouse")
-      .config("hive.support.concurrency","true")
-      .config("hive.txn.manager","org.apache.hadoop.hive.ql.lockmgr.DbTxnManager")
-      .config("hive.enforce.bucketing","true")
-      .config("hive.exec.dynamic.partition.mode","nostrict")
-      .config("hive.compactor.initiator.on","true")
-      .config("hive.compactor.worker.threads","1")
+      .config("spark.sql.warehouse.dir", s"hdfs://hdp1-pre1.leadswarp.com:8020/apps/hive/warehouse")
+      .config("hive.metastore.uris","thrift://192.168.121.32:9083")
+      //      .config("spark.sql.warehouse.dir", "hdfs://localhost:9000/user/hive/warehouse")
+      //      .config("spark.sql.warehouse.dir", "hdfs://localhost:9000/user/hive/warehouse")
+      //      .config("hive.support.concurrency","true")
+      //      .config("hive.txn.manager","org.apache.hadoop.hive.ql.lockmgr.DbTxnManager")
+      //      .config("hive.enforce.bucketing","true")
+      //      .config("hive.exec.dynamic.partition.mode","nostrict")
+      //      .config("hive.compactor.initiator.on","true")
+      //      .config("hive.compactor.worker.threads","1")
       .enableHiveSupport()
       .getOrCreate()
   }
 
+  /**
+   * +--------+
+|count(1)|
++--------+
+| 2046674|
++--------+
+   */
   @Test
-  def test():Unit = {
+  def test(): Unit = {
+    spark.sql("select count(1) from dw_t1.contact").show()
   }
 
   @Test
@@ -55,32 +65,32 @@ class HiveTest {
   }
 
   @Test
-  def createTableWithAPI():Unit = {
-    val personDF = spark.createDataFrame(Seq(Person(1,"aa",18,"male"),Person(2,"bb",20,"female"),Person(3,"cc",21,"female")))
+  def createTableWithAPI(): Unit = {
+    val personDF = spark.createDataFrame(Seq(Person(1, "aa", 18, "male"), Person(2, "bb", 20, "female"), Person(3, "cc", 21, "female")))
     personDF.write.format("hive")
       .mode(SaveMode.Overwrite)
       //这里可以不指定path，如果不指定，则会存储在hive默认的warehouse下
-//      .option("path","hdfs://localhost:9000/user/hive/warehouse/hive_person")
+      //      .option("path","hdfs://localhost:9000/user/hive/warehouse/hive_person")
       .saveAsTable("person1")
   }
 
 
   @Test
-  def createOrcTableWithAPI():Unit = {
-    val personDF = spark.createDataFrame(Seq(Person(1,"aa",18,"male"),Person(2,"bb",20,"female"),Person(3,"cc",21,"female")))
+  def createOrcTableWithAPI(): Unit = {
+    val personDF = spark.createDataFrame(Seq(Person(1, "aa", 18, "male"), Person(2, "bb", 20, "female"), Person(3, "cc", 21, "female")))
     personDF.write.format("orc")
       .partitionBy("sex")
-      .bucketBy(8,"age")
+      .bucketBy(8, "age")
       .mode(SaveMode.Overwrite)
-//      .option("transactional","true")
+      //      .option("transactional","true")
       //这里可以不指定path，如果不指定，则会存储在hive默认的warehouse下
       //      .option("path","hdfs://localhost:9000/user/hive/warehouse/hive_person")
       .saveAsTable("person_orc_acid")
   }
 
   @Test
-  def createOrcTableWithHQL():Unit = {
-    val personDF = spark.createDataFrame(Seq(Person(1,"aa",18,"male"),Person(2,"bb",20,"female"),Person(3,"cc",21,"female")))
+  def createOrcTableWithHQL(): Unit = {
+    val personDF = spark.createDataFrame(Seq(Person(1, "aa", 18, "male"), Person(2, "bb", 20, "female"), Person(3, "cc", 21, "female")))
 
     //如果要创建可以update的orc表，必须用原生的HQL语法
     //    println(spark.sql("create table person_orc_bucket_v2(id int,name string,age int) partitioned by (sex string) CLUSTERED BY (age) INTO 8 BUCKETS STORED AS ORC TBLPROPERTIES ('transactional'='true');")
@@ -93,24 +103,24 @@ class HiveTest {
 
 
   @Test
-  def createOrcTableWithV2API():Unit = {
-    val personDF = spark.createDataFrame(Seq(Person(1,"aa",18,"male"),Person(2,"bb",20,"female"),Person(3,"cc",21,"female")))
-    personDF.writeTo("person_orc_bucket_v2")
-      .partitionedBy(col("sex"))
-      .tableProperty("transactional","true")
-      .create()
+  def createOrcTableWithV2API(): Unit = {
+    val personDF = spark.createDataFrame(Seq(Person(1, "aa", 18, "male"), Person(2, "bb", 20, "female"), Person(3, "cc", 21, "female")))
+//    personDF.writeTo("person_orc_bucket_v2")
+//      .partitionedBy(col("sex"))
+//      .tableProperty("transactional", "true")
+//      .create()
 
   }
 
   @Test
-  def testRead():Unit = {
+  def testRead(): Unit = {
     val personDF = spark.createDataFrame(Seq(Person(1, "aa", 18, "male"), Person(2, "bb", 20, "female"), Person(3, "cc", 21, "female")))
   }
 
 
   @Test
-  def InsertOrcTableWithAPI():Unit = {
-    val personDF = spark.createDataFrame(Seq(Person(4,"aa",18,"male"),Person(5,"bb",20,"female"),Person(6,"cc",21,"female")))
+  def InsertOrcTableWithAPI(): Unit = {
+    val personDF = spark.createDataFrame(Seq(Person(4, "aa", 18, "male"), Person(5, "bb", 20, "female"), Person(6, "cc", 21, "female")))
     personDF.write.format("orc")
       .mode(SaveMode.Append)
       //这里可以不指定path，如果不指定，则会存储在hive默认的warehouse下
