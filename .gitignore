@@ -1,0 +1,13 @@
+# Created by .ignore support plugin (hsz.mobi)
+out/
+target/
+.idea
+*.iml
+spark-warehouse/
+/streaming/src/main/resources/META-INF/
+/core/src/main/resources/META-INF/
+metastore_db
+logs
+checkpoint
+*.log
+/core/src/main/scala/META-INF

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util.xsd">
+    <bean id="grid.cfg" class="org.apache.ignite.configuration.IgniteConfiguration">
+       <!--对等类加载是否启用，默认为true不开启很容易报错-->
+        <property name="peerClassLoadingEnabled" value="true"/>
+	<!--失败检测 超时时长-->
+	<property name="failureDetectionTimeout" value="60000"/>
+	<!--公共线程池大小 -->
+        <property name="publicThreadPoolSize" value="512"/>
+	<!--系统线程池大小 -->
+        <property name="systemThreadPoolSize" value="512"/>
+	<!--源线程池大小 -->
+        <property name="stripedPoolSize" value="512"/>
+	<!--数据流线程池大小 -->
+        <property name="dataStreamerThreadPoolSize" value="512"/>
+	<!--查询线程池大小 根据实际情况而定-->
+        <property name="queryThreadPoolSize" value="512"/>
+	<!--平衡线程池大小 根据实际情况而定-->
+	<property name="rebalanceThreadPoolSize" value="15"/>
+	<!--用户验证是否开启 默认为false 开启后默认用户名密码都是ignite-->
+	<property name="authenticationEnabled" value="false"/>
+	<!--数据存储配置 -->
+        <property name="dataStorageConfiguration">
+            <bean class="org.apache.ignite.configuration.DataStorageConfiguration">
+                <!--并发性水平   可由自己实际情况而定 -->
+		<property name="concurrencyLevel" value="72"/>
+                <!--数据分布配置 默认是都存放到内存中，此处进行持久化 -->
+		<property name="defaultDataRegionConfiguration">
+                    <bean class="org.apache.ignite.configuration.DataRegionConfiguration">
+                        <!--是否持久化到磁盘 true为持久化 -->
+                        <property name="persistenceEnabled" value="true"/>
+                        <property name="name" value="vehicle_Region"/>
+                        <!-- 2G initial size. 初始化内存-->
+                        <property name="initialSize" value="#{1L * 1024 * 1024 * 1024}" />
+                        <!-- 10G maximum size. 最大内存大小-->
+                        <property name="maxSize" value="#{1L * 1024 * 1024 * 1024}" />
+                        <property name="checkpointPageBufferSize" value="#{1L *1024* 1024 * 1024L}" />
+                    </bean>
+                </property>
+		<property name="storagePath" value="/Users/edz/data/igniteServer/Storage" />
+		<property name="walArchivePath" value="/Users/edz/data/igniteServer/WalArchive" />
+		<property name="walPath" value="/Users/edz/data/igniteServer/Wal" />
+            </bean>
+        </property>
+
+	<property name="discoverySpi">
+            <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
+                <property name="ipFinder">
+                    <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">
+                        <property name="addresses">
+                            <list>
+                                <value>localhost:47500..47509</value>
+                                <value>localhost:47510..47519</value>
+                                <value>localhost:47520..47529</value>
+                            </list>
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+        <!--通信串行外设接口配置-->
+	<property name="communicationSpi">
+           <bean class="org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi">
+                <property name="localAddress" value="localhost" />
+                <property name="connectTimeout" value="60000" />
+          </bean>
+     </property>
+    <!--网络超时时长 -->
+    <property name="networkTimeout" value="60000"/>
+    </bean>
+</beans>
