@@ -34,6 +34,24 @@ class JoinTest {
       Salary("personnel", 7, 2000),
     ).toDS()
 
-    empSalay1.join(empSalay2,'id,"leftsemi").show(false)
+    println("leftsemi")
+    empSalay1.join(empSalay2,empSalay1("id") === empSalay2("id"),"leftsemi").show(false)
+    println("leftanti")
+    empSalay1.join(empSalay2,empSalay1("id") === empSalay2("id"),"leftanti").show(false)
+    println("leftouter")
+    empSalay1.join(empSalay2,empSalay1("id") === empSalay2("id"),"leftouter").show(false)
+    println("rightouter")
+    empSalay1.join(empSalay2,empSalay1("id") === empSalay2("id"),"rightouter").show(false)
+    println("cross")
+    empSalay1.join(empSalay2,empSalay1("id") === empSalay2("id"),"cross").show(false)
+    empSalay1.crossJoin(empSalay2).show(false)
+    println("inner")
+    empSalay1.join(empSalay2,empSalay1("id") === empSalay2("id"),"inner").show(false)
+    println("full")
+    empSalay1.join(empSalay2,empSalay1("id") === empSalay2("id"),"full").show(false)
+    println("outer")
+    empSalay1.join(empSalay2,empSalay1("id") === empSalay2("id"),"outer").show(false)
+    println("fullouter")
+    empSalay1.join(empSalay2,empSalay1("id") === empSalay2("id"),"fullouter").show(false)
   }
 }

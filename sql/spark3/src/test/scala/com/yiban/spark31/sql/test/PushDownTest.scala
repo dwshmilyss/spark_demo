@@ -2,8 +2,9 @@ package com.yiban.spark31.sql.test
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{col, dense_rank, rank, row_number}
-import org.apache.spark.sql.{Encoders, SparkSession}
+import org.apache.spark.sql.functions.{col, count, dense_rank, rank, row_number}
+import org.apache.spark.sql.internal.SQLConf
+import org.apache.spark.sql.{Encoders, SparkSession, functions}
 import org.junit.jupiter.api.{AfterEach, BeforeEach, Test}
 
 import java.util.Properties
@@ -44,9 +45,10 @@ class PushDownTest {
     connectionProperties.put("password", password)
     val df = spark.read.jdbc(url,"contact_meta_prop",connectionProperties)
     df.createOrReplaceTempView("contact_meta_prop")
-    val data = spark.sql("select status,count(id) as cn from contact_meta_prop where tenant_id = 1 group by status having cn = 10;")
-    data.queryExecution.debug
-    println(s"logical = ${spark.sessionState.analyzer.ResolveRelations(data.queryExecution.logical)}")
+//    val data = spark.sql("select status,count(id) as cn from contact_meta_prop where tenant_id = 1 group by status having cn = 10;")
+    df.filter(col("tenant_id") === 1).groupBy(col("status")).agg(count(col("id"))).where(count(col("id")) > 10).explain(true)
+//    data.queryExecution.debug
+//    println(s"logical = ${spark.sessionState.analyzer.ResolveRelations(data.queryExecution.logical)}")
 //    println(data.queryExecution)
   }
 
@@ -112,6 +114,32 @@ class PushDownTest {
     ds1.explain(true)
     ds2.collect().foreach(println)
     ds2.explain(true)
+  }
+
+  @Test
+  def testPushDownGroupBy1():Unit = {
+    val spark = SparkSession.builder()
+      .appName("MySQLTest")
+      .master("local[2]")
+      .getOrCreate()
+    import spark.implicits._
+    val empSalay = Seq(
+      Salary("sales",1,5000),
+      Salary("sales",12,3000),
+      Salary("personnel",2,3000),
+      Salary("sales",3,4800),
+      Salary("sales",4,4800),
+      Salary("personnel",5,3500),
+      Salary("develop",6,4200),
+      Salary("develop",7,4200),
+      Salary("develop",8,5600),
+      Salary("develop",9,6000),
+      Salary("develop",10,7700),
+      Salary("develop",11,8800)
+    ).toDS()
+
+    val df =  empSalay.filter(col("dep") === "develop").groupBy(col("dep")).agg(functions.max("salary")).where(functions.max("salary") > 8000)
+    df.explain(true)
   }
 
 }
