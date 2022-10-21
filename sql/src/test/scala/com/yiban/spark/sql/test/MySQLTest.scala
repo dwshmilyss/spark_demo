@@ -24,6 +24,16 @@ class MySQLTest {
       .getOrCreate()
   }
 
+  /**
+   * 可以看到物理计划中有: PushedFilters: [*IsNotNull(tenant_id), *EqualTo(tenant_id,1)]
+   *
+   * == Physical Plan ==
+      AdaptiveSparkPlan isFinalPlan=false
+      +- HashAggregate(keys=[status#15], functions=[count(id#0L)], output=[count(id)#57L])
+         +- Exchange hashpartitioning(status#15, 200), ENSURE_REQUIREMENTS, [id=#18]
+            +- HashAggregate(keys=[status#15], functions=[partial_count(id#0L)], output=[status#15, count#60L])
+               +- Scan JDBCRelation(contact_meta_prop) [numPartitions=1] [id#0L,status#15] PushedAggregates: [], PushedFilters: [*IsNotNull(tenant_id), *EqualTo(tenant_id,1)], PushedGroupby: [], ReadSchema: struct<id:bigint,status:string>
+   */
   @Test
   def testPushDownGroupBy():Unit = {
     val connectionProperties = new Properties()
@@ -33,6 +43,19 @@ class MySQLTest {
     df.createOrReplaceTempView("contact_meta_prop")
     val data = spark.sql("select count(id) from contact_meta_prop where tenant_id = 1 group by status;")
     println(data.queryExecution)
+  }
+
+  case class TestVO(id:Int,name:String,name1:String)
+
+  @Test
+  def testJoin():Unit = {
+    val df1 = spark.createDataFrame(List(TestVO(1,"aa","aa1"),TestVO(2,"bb","bb1")))
+    val df2 = spark.createDataFrame(List(TestVO(1,"dd","dd1"),TestVO(3,"cc","cc1")))
+    val res = df1.join(df2,df1("id") === df2("id"))
+    res.show()
+    val arr = res.collect().foreach{ row =>
+      println(s"value = ${row.getAs[String]("name1")}")
+    }
   }
 
   @AfterEach

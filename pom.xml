@@ -21,7 +21,6 @@
         <module>rpc</module>
         <module>structured</module>
         <module>hudi</module>
-        <module>minio</module>
     </modules>
 
 

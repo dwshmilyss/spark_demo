@@ -41,22 +41,22 @@ class IgniteTest {
 
   @Test
   def testAPI() = {
-//    val cfgPath: String = new IgniteTest().getClass.getClassLoader.getResource("weijiqun-config-2.xml").getPath
+    val cfgPath: String = new IgniteTest().getClass.getClassLoader.getResource("local_static_ip-config.xml").getPath
     URL.setURLStreamHandlerFactory(new FsUrlStreamHandlerFactory())
-    val cfgPath: String = "hdfs://localhost:9000/weijiqun-config-2.xml"
+//    val cfgPath: String = "hdfs://localhost:9000/local_static_ip-config.xml"
     println(cfgPath)
 
     val df = spark.read
       .format(FORMAT_IGNITE) // Data source type.
-      .option(OPTION_TABLE, "identity_test") // Table to read.
+      .option(OPTION_TABLE, "city") // Table to read.
       .option(OPTION_CONFIG_FILE, cfgPath) // Ignite config.
       .load()
 
-    df.createOrReplaceTempView("identity_test")
+    df.createOrReplaceTempView("city")
       val stopWatch:StopWatch = new StopWatch()
       stopWatch.start()
 //    val igniteDF = spark.sql("select * from identity_test  where id = '1'")
-    val igniteDF = spark.sql("select * from identity_test order by contact_id desc limit 1")
+    val igniteDF = spark.sql("select * from city")
     igniteDF.explain(true)
     println(igniteDF.queryExecution.executedPlan)
     igniteDF.show()
@@ -68,19 +68,19 @@ class IgniteTest {
   def testJDBC() = {
     val df = spark.read
       .format("jdbc")
-      .option("url", "jdbc:ignite:thin://localhost")
+      .option("url", "jdbc:ignite:thin://localhost:10800;partitionAwareness=true")
       .option("fetchsize", 100)
       //.option("driver", "org.apache.ignite.IgniteJdbcDriver")
-      .option("dbtable", "identity_test").load()
+      .option("dbtable", "city").load()
 
     df.printSchema()
 
-    df.createOrReplaceTempView("identity_test")
+    df.createOrReplaceTempView("city")
 
     val stopWatch:StopWatch = new StopWatch()
     stopWatch.start()
     //    val igniteDF = spark.sql("select * from identity_test  where id = '1'")
-    val igniteDF = spark.sql("select * from identity_test order by contact_id desc limit 1")
+    val igniteDF = spark.sql("select * from city")
     igniteDF.show()
     stopWatch.stop()
     println(stopWatch.getTotalTimeMillis)//31083
