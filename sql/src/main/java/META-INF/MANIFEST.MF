@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: com.yiban.spark.sql.dev.SparkSqlPrefDemo
-

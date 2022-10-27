@@ -1,10 +1,12 @@
 package com.yiban.spark.sql.dev
 
 
+import com.yiban.spark.sql.javaudf.MyFlatMapFunction
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.api.java.function.FlatMapFunction
-import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.spark.sql.{Encoders, Row, SparkSession}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.functions.col
 
 import scala.collection.mutable
 
@@ -16,12 +18,23 @@ object ReadDataDemo {
   val spark = SparkSession.builder().appName("ReadDataDemo").master("local[*]").getOrCreate()
 
   case class Sale(id: Int, productName: String, typeName: String, saleCount: Int)
+  case class Person(name: String, sex: String, age: Long, height: Long)
 
   def main(args: Array[String]): Unit = {
 //    System.setProperty("hadoop.home.dir", "D:\\soft\\hadoop\\hadoop-2.8.5")
-        testReadDataFromTxt
+//        testReadDataFromTxt
 //    testReadDataFromJSON
+    testFlatMap()
   }
+
+  def testFlatMap():Unit = {
+    import spark.implicits._
+    val path = ReadDataDemo.getClass.getClassLoader.getResource("data/person.json").getPath
+    val ds = spark.read.json(path).as[Person]
+    ds.map(row => row.name).flatMap(MyFlatMapFunction,Encoders.STRING).collect()
+  }
+
+
 
   /**
     * 从txt中读取
@@ -122,6 +135,4 @@ object ReadDataDemo {
     //    }
     spark.close()
   }
-
-
 }

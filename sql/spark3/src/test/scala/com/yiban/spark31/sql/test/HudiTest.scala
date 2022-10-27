@@ -1,14 +1,4 @@
-package com.yiban.spark.sql.test
-
-import org.apache.hudi.DataSourceWriteOptions
-import org.apache.hudi.DataSourceWriteOptions.{OPERATION_OPT_KEY, PARTITIONPATH_FIELD_OPT_KEY, PAYLOAD_CLASS_OPT_KEY, PRECOMBINE_FIELD_OPT_KEY, RECORDKEY_FIELD_OPT_KEY}
-import org.apache.hudi.QuickstartUtils.getQuickstartWriteConfigs
-import org.apache.hudi.common.model.{OverwriteNonDefaultsWithLatestAvroPayload}
-import org.apache.hudi.config.HoodieWriteConfig.TABLE_NAME
-import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.SaveMode.Append
-import org.apache.spark.sql.SparkSession
-import org.junit.jupiter.api.{AfterEach, BeforeEach, Test}
+package com.yiban.spark31.sql.test
 
 class HudiTest {
 
