@@ -1,5 +1,6 @@
 package com.yiban.spark31.sql.test
 
+import com.yiban.spark31.sql.test.entity.Salary
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 import org.junit.jupiter.api.{BeforeEach, Test}

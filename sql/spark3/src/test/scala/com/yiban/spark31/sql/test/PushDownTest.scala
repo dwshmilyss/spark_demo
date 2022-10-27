@@ -1,5 +1,6 @@
 package com.yiban.spark31.sql.test
 
+import com.yiban.spark31.sql.test.entity.{Person, Salary}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, count, dense_rank, rank, row_number}

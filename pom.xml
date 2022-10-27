@@ -34,13 +34,13 @@
         <scala.binary.version>2.12</scala.binary.version>
         <test.scala.version>2.12.8</test.scala.version>
         <spark.version>2.4.7</spark.version>
-<!--        <spark.version>3.0.3</spark.version>-->
+        <!--        <spark.version>3.0.3</spark.version>-->
         <kafka.spark3.version>3.0.3</kafka.spark3.version>
         <hadoop.version>2.7.7</hadoop.version>
         <hbase.version>1.2.5</hbase.version>
         <!--http client必需要兼容CDH中的hadoop版本（cd /opt/cloudera/parcels/CDH/lib/hadoop/lib）-->
         <httpcomponents.version>4.2.5</httpcomponents.version>
-<!--        <httpcomponents.version>4.5.2</httpcomponents.version>-->
+        <!--        <httpcomponents.version>4.5.2</httpcomponents.version>-->
         <fastjson.version>1.1.39</fastjson.version>
         <kafka.version>0.10.2.0</kafka.version>
         <avro.version>1.8.2</avro.version>
@@ -55,14 +55,12 @@
         <log4j.version>1.2.17</log4j.version>
         <commons.version>2.8.0</commons.version>
         <commons.pool.version>1.6</commons.pool.version>
-<!--        <hive.version>2.3.7</hive.version>-->
         <hive.version>1.2.2</hive.version>
         <httpclient.version>4.5.12</httpclient.version>
         <mysql.connector.version>5.1.48</mysql.connector.version>
         <lombok.version>1.18.20</lombok.version>
         <log4j.slf4j.version>2.11.0</log4j.slf4j.version>
-                <hudi.version>0.8.0</hudi.version>
-<!--        <hudi.version>0.9.0</hudi.version>-->
+        <hudi.version>0.8.0</hudi.version>
         <presto.version>0.244</presto.version>
         <iceberg.version>0.12.0</iceberg.version>
         <okhttp.version>4.0.1</okhttp.version>
@@ -189,11 +187,11 @@
                 <version>${spark.version}</version>
             </dependency>
 
-<!--            <dependency>-->
-<!--                <groupId>org.apache.spark</groupId>-->
-<!--                <artifactId>spark-catalyst_${scala.binary.version}</artifactId>-->
-<!--                <version>${spark.version}</version>-->
-<!--            </dependency>-->
+            <!--            <dependency>-->
+            <!--                <groupId>org.apache.spark</groupId>-->
+            <!--                <artifactId>spark-catalyst_${scala.binary.version}</artifactId>-->
+            <!--                <version>${spark.version}</version>-->
+            <!--            </dependency>-->
 
             <dependency>
                 <groupId>org.apache.avro</groupId>

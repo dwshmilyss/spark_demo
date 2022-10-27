@@ -1,5 +1,13 @@
 package com.yiban.spark31.sql.test
 
+import org.apache.hudi.DataSourceWriteOptions.{OPERATION_OPT_KEY, PARTITIONPATH_FIELD_OPT_KEY, PAYLOAD_CLASS_OPT_KEY, PRECOMBINE_FIELD_OPT_KEY, RECORDKEY_FIELD_OPT_KEY, TABLE_NAME_OPT_KEY}
+import org.apache.hudi.QuickstartUtils.getQuickstartWriteConfigs
+import org.apache.hudi.common.model.OverwriteNonDefaultsWithLatestAvroPayload
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.apache.spark.sql.streaming.OutputMode
+import org.junit.jupiter.api.{AfterEach, BeforeEach, Test}
+
 class HudiTest {
 
   var spark: SparkSession = _
@@ -44,7 +52,7 @@ class HudiTest {
       option(RECORDKEY_FIELD_OPT_KEY, "id").
       option(PARTITIONPATH_FIELD_OPT_KEY, "date").
       //      option(INSERT_DROP_DUPS_OPT_KEY,false).
-      option(TABLE_NAME, "hudi_test_partition").
+      option(TABLE_NAME_OPT_KEY, "hudi_test_partition").
       option(PAYLOAD_CLASS_OPT_KEY, classOf[OverwriteNonDefaultsWithLatestAvroPayload].getName).
       option(OPERATION_OPT_KEY, "upsert").
 //      option(DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY, "true").
@@ -56,7 +64,7 @@ class HudiTest {
 //      option(DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY, "date").
       //      option("hoodie.clean.async", "true").
       //      option("hoodie.cleaner.commits.retained", "1").
-      mode(Append).
+      mode(SaveMode.Append).
       save("hdfs://localhost:9000/user/hive/warehouse/hudi_test_partition")
 
     spark.sql("select * from hudi_test_partition").show()
